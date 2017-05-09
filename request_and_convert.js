@@ -1,17 +1,26 @@
 const fs = require('fs')
 const request = require('request')
 const moment = require('moment')
+const prompt = require('prompt')
 
 const inputFileName = 'all_issues.json'
 const outputFileName = 'all_issues.csv'
 
-let json
-
 const username = 'lukasvesely98'
 const password = 'R0jnfnsapvnj4l'
 
-const options = {
-  url: 'https://api.github.com/repos/pavelbinar/ro_convert-github-issues-to-csv/issues?per_page=100&state=all&page=1',
+let pages = 1
+
+// prompt.start()
+//
+// prompt.get(['username', 'password',], function (err, result) {
+//
+//   const username = result.username
+//   const password = result.password
+//
+// })
+
+const requestOptions = {
   headers: {
     'User-Agent': 'request'
   },
@@ -21,15 +30,30 @@ const options = {
   }
 }
 
-request(options, function (error, response, body) {
-  // console.log('error:', error); // Print the error if one occurred
-  // console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-  // console.log('body:', body); // Print the HTML for the Google homepage.
+// requestAPI('https://api.github.com/repos/pavelbinar/ro_convert-github-issues-to-csv/issues?per_page=10&state=all&page=' + pages)
+// pages++;
+// requestAPI('https://api.github.com/repos/pavelbinar/ro_convert-github-issues-to-csv/issues?per_page=10&state=all&page=' + pages)
 
-  convertJSonToCsv(error, body)
-})
+requestResponse('https://api.github.com/repos/pavelbinar/ro_convert-github-issues-to-csv/issues?per_page=10&state=all&page=' + pages)
 
+function requestAPI (url) {
+  request(url, requestOptions, function (error, response, body) {
+    // console.log('error:', error); // Print the error if one occurred
+    // console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
+    // console.log('body:', body); // Print the HTML for the Google homepage.
+    console.log(pages)
+    convertJSonToCsv(error, body)
+  })
 
+}
+
+function requestResponse (url) {
+  request(url, requestOptions, function (error, response, body) {
+    const link = response.headers.link;
+    // Slice(),IndexOf()
+  })
+
+}
 
 function convertJSonToCsv (err, data) {
   if (err) throw err
@@ -48,10 +72,10 @@ function convertJSonToCsv (err, data) {
 
   console.log(csvData)
 
-  writeData(csvData)
+  writeData(csvData, outputFileName)
 }
 
-function writeData (data) {
+function writeData (data, outputFileName) {
   fs.writeFile(outputFileName, data, (err) => {
     if (err) throw err
     console.log(`\nSUCCESS!\n${inputFileName} converted and saved to ${outputFileName}`)
