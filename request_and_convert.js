@@ -9,7 +9,7 @@ const outputFileName = 'all_issues.csv'
 const username = 'lukasvesely98'
 const password = 'R0jnfnsapvnj4l'
 
-let pages = 1
+const startUrl = 'https://api.github.com/repos/pavelbinar/ro_convert-github-issues-to-csv/issues?per_page=10&state=all&page=1'
 
 // prompt.start()
 //
@@ -30,29 +30,25 @@ const requestOptions = {
   }
 }
 
-// requestAPI('https://api.github.com/repos/pavelbinar/ro_convert-github-issues-to-csv/issues?per_page=10&state=all&page=' + pages)
-// pages++;
-// requestAPI('https://api.github.com/repos/pavelbinar/ro_convert-github-issues-to-csv/issues?per_page=10&state=all&page=' + pages)
+function main (data, url) {
+  requestBody(url, (error, response, body) => {
+    const rawLink = response.headers.link
+    data += convertJSonToCsv(error, body)
+    if (rawLink.includes('next')) {
+      const link = rawLink.slice(rawLink.indexOf('<') + 1, rawLink.indexOf('>'))
+      main(data, link)
+    }
+    else {
+      writeData(data, outputFileName)
+    }
 
-requestResponse('https://api.github.com/repos/pavelbinar/ro_convert-github-issues-to-csv/issues?per_page=10&state=all&page=' + pages)
-
-function requestAPI (url) {
-  request(url, requestOptions, function (error, response, body) {
-    // console.log('error:', error); // Print the error if one occurred
-    // console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-    // console.log('body:', body); // Print the HTML for the Google homepage.
-    console.log(pages)
-    convertJSonToCsv(error, body)
   })
-
 }
 
-function requestResponse (url) {
+function requestBody (url, callback) {
   request(url, requestOptions, function (error, response, body) {
-    const link = response.headers.link;
-    // Slice(),IndexOf()
+    callback(error, response, body)
   })
-
 }
 
 function convertJSonToCsv (err, data) {
@@ -67,12 +63,12 @@ function convertJSonToCsv (err, data) {
 
     // console.log(object)
 
-    return `"${object.number}"; "${object.title.replace(/"/g, '\'')}"; "${object.html_url}"; "${stringLabels}"; "${object.state}"; "${date}"`
-  }).join('\n')
+    return `"${object.number}"; "${object.title.replace(/"/g, '\'')}"; "${object.html_url}"; "${stringLabels}"; "${object.state}"; "${date}"\n`
+  }).join('')
 
   console.log(csvData)
 
-  writeData(csvData, outputFileName)
+  return csvData
 }
 
 function writeData (data, outputFileName) {
@@ -81,3 +77,10 @@ function writeData (data, outputFileName) {
     console.log(`\nSUCCESS!\n${inputFileName} converted and saved to ${outputFileName}`)
   })
 }
+
+main('', startUrl)
+
+let i = 5
+
+let test1 = `abc ${i} def`
+let test2 = 'abc ' + i + ' def'
