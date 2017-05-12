@@ -1,16 +1,15 @@
 const fs = require('fs')
 const request = require('request')
 const moment = require('moment')
-const prompt = require('prompt')
 const argv = require('yargs').argv
+const chalk = require('chalk');
 
-const inputFileName = 'all_issues.json'
 const outputFileName = 'all_issues.csv'
 
 const username = argv.username
 const password = argv.password
 
-const startUrl = `https://api.github.com/repos/${argv.repository}/issues?per_page=10&state=all&page=1`
+const startUrl = `https://api.github.com/repos/${argv.repository}?per_page=10&state=all&page=1`
 
 const requestOptions = {
   headers: {
@@ -38,14 +37,16 @@ function main (data, url) {
 }
 
 function requestBody (url, callback) {
+  console.log('Requesting API...')
   request(url, requestOptions, function (error, response, body) {
+    console.log(chalk.green('API successfully requested'))
     callback(error, response, body)
   })
 }
 
 function convertJSonToCsv (err, data) {
   if (err) throw err
-
+  console.log('Converting issues...')
   jsData = JSON.parse(data)
 
   const csvData = jsData.map(object => {
@@ -58,15 +59,15 @@ function convertJSonToCsv (err, data) {
     return `"${object.number}"; "${object.title.replace(/"/g, '\'')}"; "${object.html_url}"; "${stringLabels}"; "${object.state}"; "${date}"\n`
   }).join('')
 
-  console.log(csvData)
-
+ console.log(chalk.green('Successfully converted 10 issues!'));
   return csvData
 }
 
 function writeData (data, outputFileName) {
   fs.writeFile(outputFileName, data, (err) => {
     if (err) throw err
-    console.log(`\nSUCCESS!\n${inputFileName} converted and saved to ${outputFileName}`)
+    console.log('Writing data to csv file')
+    console.log(chalk.yellow(`\nProcess was successful\nIssues was downloaded, converted and saved to ${outputFileName}`))
   })
 }
 
