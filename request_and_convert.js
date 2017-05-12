@@ -2,23 +2,15 @@ const fs = require('fs')
 const request = require('request')
 const moment = require('moment')
 const prompt = require('prompt')
+const argv = require('yargs').argv
 
 const inputFileName = 'all_issues.json'
 const outputFileName = 'all_issues.csv'
 
-const username = 'lukasvesely98'
-const password = 'R0jnfnsapvnj4l'
+const username = argv.username
+const password = argv.password
 
-const startUrl = 'https://api.github.com/repos/pavelbinar/ro_convert-github-issues-to-csv/issues?per_page=10&state=all&page=1'
-
-// prompt.start()
-//
-// prompt.get(['username', 'password',], function (err, result) {
-//
-//   const username = result.username
-//   const password = result.password
-//
-// })
+const startUrl = `https://api.github.com/repos/${argv.repository}/issues?per_page=10&state=all&page=1`
 
 const requestOptions = {
   headers: {
@@ -80,7 +72,3 @@ function writeData (data, outputFileName) {
 
 main('', startUrl)
 
-let i = 5
-
-let test1 = `abc ${i} def`
-let test2 = 'abc ' + i + ' def'
