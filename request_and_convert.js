@@ -2,14 +2,17 @@ const fs = require('fs')
 const request = require('request')
 const moment = require('moment')
 const argv = require('yargs').argv
-const chalk = require('chalk');
+const chalk = require('chalk')
 
 const outputFileName = 'all_issues.csv'
 
 const username = argv.username
 const password = argv.password
+const repoUrl = argv.repository.slice(19,argv.repository.lastIndexOf("s")+1)
 
-const startUrl = `https://api.github.com/repos/${argv.repository}?per_page=10&state=all&page=1`
+const errorArgument = "Use proper arguments\n--username\n--password\n--repository"
+
+const startUrl = `https://api.github.com/repos/${repoUrl}?per_page=10&state=all&page=1`
 
 const requestOptions = {
   headers: {
@@ -24,6 +27,7 @@ const requestOptions = {
 function main (data, url) {
   requestBody(url, (error, response, body) => {
     const rawLink = response.headers.link
+    //dodelat podminku pro pripad kdz je pouze jedna page
     data += convertJSonToCsv(error, body)
     if (rawLink.includes('next')) {
       const link = rawLink.slice(rawLink.indexOf('<') + 1, rawLink.indexOf('>'))
@@ -39,6 +43,7 @@ function main (data, url) {
 function requestBody (url, callback) {
   console.log('Requesting API...')
   request(url, requestOptions, function (error, response, body) {
+    if (error) throw errorArgument
     console.log(chalk.green('API successfully requested'))
     callback(error, response, body)
   })
@@ -46,7 +51,9 @@ function requestBody (url, callback) {
 
 function convertJSonToCsv (err, data) {
   if (err) throw err
-  console.log('Converting issues...')
+
+  console.log('\nConverting issues...')
+
   jsData = JSON.parse(data)
 
   const csvData = jsData.map(object => {
@@ -54,12 +61,10 @@ function convertJSonToCsv (err, data) {
     const labels = object.labels
     const stringLabels = labels.map(label => label.name).toString()
 
-    // console.log(object)
-
     return `"${object.number}"; "${object.title.replace(/"/g, '\'')}"; "${object.html_url}"; "${stringLabels}"; "${object.state}"; "${date}"\n`
   }).join('')
 
- console.log(chalk.green('Successfully converted 10 issues!'));
+  console.log(chalk.green('Successfully converted 10 issues!'))
   return csvData
 }
 
@@ -71,5 +76,6 @@ function writeData (data, outputFileName) {
   })
 }
 
+console.log(startUrl)
 main('', startUrl)
 
