@@ -2,21 +2,27 @@ const fs = require('fs')
 const request = require('request')
 const moment = require('moment')
 const argv = require('yargs')
-  .usage('Usage: $0 --username [username] --password [password] --repository [URL of repository]')
-  .demandOption(['username','password','repository'])
-  .argv;
+  .usage('Usage: $0 --username [username] --password [password] --repository [full URL of repository issues]')
+  .demandOption(['username', 'password', 'repository'])
+  .help('h')
+  .alias('h', 'help')
+  .version(function() {
+    return require('/home/developer/git/ro_convert-github-issues-to-csv/package.json').version;
+  })
+  .alias('version','ver')
+  .argv
 const chalk = require('chalk')
 
 const outputFileName = 'all_issues.csv'
 
 const username = argv.username
 const password = argv.password
-const repoUserName = argv.repository.slice(19, argv.repository.indexOf('/',19))
-const repoUrl = argv.repository.slice(20+repoUserName.length)
+const repoUserName = argv.repository.slice(19, argv.repository.indexOf('/', 19))
+const repoUrl = argv.repository.slice(20 + repoUserName.length)
 
 const errorArgument = 'Use proper arguments\n--username\n--password\n--repository'
 
-const startUrl = `https://api.github.com/repos/${repoUserName}/${repoUrl}?per_page=100&state=all&page=1`
+const startUrl = `https://api.github.com/repos/${repoUserName}/${repoUrl}/issues?per_page=100&state=all&page=1`
 
 const requestOptions = {
   headers: {
@@ -33,15 +39,17 @@ function main (data, url) {
 
     let rawLink = response.headers.link
 
-    if("undefined"=== typeof rawLink){
-      rawLink="";
-    }
-
     data += convertJSonToCsv(error, body)
 
-    if (rawLink.includes('next')) {
-      const link = rawLink.slice(rawLink.indexOf('<') + 1, rawLink.indexOf('>'))
-      main(data, link)
+    if (rawLink) {
+
+      if (rawLink.includes('next')) {
+        const link = rawLink.slice(rawLink.indexOf('<') + 1, rawLink.indexOf('>'))
+        main(data, link)
+      }
+      else {
+        writeData(data, outputFileName)
+      }
     }
     else {
       writeData(data, outputFileName)
@@ -86,8 +94,6 @@ function writeData (data, outputFileName) {
     console.log(chalk.yellow(`\nProcess was successful\nIssues was downloaded, converted and saved to ${outputFileName}`))
   })
 }
-
-console.log(startUrl)
 
 main('', startUrl)
 
