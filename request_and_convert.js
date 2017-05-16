@@ -8,11 +8,11 @@ const outputFileName = 'all_issues.csv'
 
 const username = argv.username
 const password = argv.password
-const repoUrl = argv.repository.slice(19,argv.repository.lastIndexOf("s")+1)
+const repoUrl = argv.repository.slice(19, argv.repository.lastIndexOf('s') + 1)
 
-const errorArgument = "Use proper arguments\n--username\n--password\n--repository"
+const errorArgument = 'Use proper arguments\n--username\n--password\n--repository'
 
-const startUrl = `https://api.github.com/repos/${repoUrl}?per_page=10&state=all&page=1`
+const startUrl = `https://api.github.com/repos/${repoUrl}?per_page=100&state=all&page=1`
 
 const requestOptions = {
   headers: {
@@ -26,9 +26,15 @@ const requestOptions = {
 
 function main (data, url) {
   requestBody(url, (error, response, body) => {
-    const rawLink = response.headers.link
-    //dodelat podminku pro pripad kdz je pouze jedna page
+
+    let rawLink = response.headers.link
+
+    if("undefined"=== typeof rawLink){
+      rawLink="";
+    }
+
     data += convertJSonToCsv(error, body)
+
     if (rawLink.includes('next')) {
       const link = rawLink.slice(rawLink.indexOf('<') + 1, rawLink.indexOf('>'))
       main(data, link)
@@ -38,6 +44,7 @@ function main (data, url) {
     }
 
   })
+
 }
 
 function requestBody (url, callback) {
@@ -76,6 +83,5 @@ function writeData (data, outputFileName) {
   })
 }
 
-console.log(startUrl)
 main('', startUrl)
 
