@@ -1,18 +1,22 @@
 const fs = require('fs')
 const request = require('request')
 const moment = require('moment')
-const argv = require('yargs').argv
+const argv = require('yargs')
+  .usage('Usage: $0 --username [username] --password [password] --repository [URL of repository]')
+  .demandOption(['username','password','repository'])
+  .argv;
 const chalk = require('chalk')
 
 const outputFileName = 'all_issues.csv'
 
 const username = argv.username
 const password = argv.password
-const repoUrl = argv.repository.slice(19, argv.repository.lastIndexOf('s') + 1)
+const repoUserName = argv.repository.slice(19, argv.repository.indexOf('/',19))
+const repoUrl = argv.repository.slice(20+repoUserName.length)
 
 const errorArgument = 'Use proper arguments\n--username\n--password\n--repository'
 
-const startUrl = `https://api.github.com/repos/${repoUrl}?per_page=100&state=all&page=1`
+const startUrl = `https://api.github.com/repos/${repoUserName}/${repoUrl}?per_page=100&state=all&page=1`
 
 const requestOptions = {
   headers: {
@@ -82,6 +86,8 @@ function writeData (data, outputFileName) {
     console.log(chalk.yellow(`\nProcess was successful\nIssues was downloaded, converted and saved to ${outputFileName}`))
   })
 }
+
+console.log(startUrl)
 
 main('', startUrl)
 
