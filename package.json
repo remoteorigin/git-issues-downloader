@@ -12,5 +12,9 @@
   },
   "scripts": {
     "start": "babel convert_to_csv.js"
+  },
+  "bin": {
+    "request-and-convert": "request_and_convert.js"
   }
+
 }

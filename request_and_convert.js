@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const fs = require('fs')
 const request = require('request')
 const moment = require('moment')
@@ -7,7 +9,7 @@ const argv = require('yargs')
   .default('fileName', 'all_issues.csv')
   .help('h')
   .alias('h', 'help')
-  .describe('fileName','Name of output file')
+  .describe('fileName', 'Name of output file')
   .version(function () {
     return require('/home/developer/git/ro_convert-github-issues-to-csv/package.json').version
   })
