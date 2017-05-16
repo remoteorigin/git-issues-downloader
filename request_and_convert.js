@@ -2,18 +2,20 @@ const fs = require('fs')
 const request = require('request')
 const moment = require('moment')
 const argv = require('yargs')
-  .usage('Usage: $0 --username [username] --password [password] --repository [full URL of repository issues]')
+  .usage('Usage: $0 --username [username] --password [password] --repository [full URL of repository]')
   .demandOption(['username', 'password', 'repository'])
+  .default('fileName', 'all_issues.csv')
   .help('h')
   .alias('h', 'help')
-  .version(function() {
-    return require('/home/developer/git/ro_convert-github-issues-to-csv/package.json').version;
+  .describe('fileName','Name of output file')
+  .version(function () {
+    return require('/home/developer/git/ro_convert-github-issues-to-csv/package.json').version
   })
-  .alias('version','ver')
+  .alias('version', 'ver')
   .argv
 const chalk = require('chalk')
 
-const outputFileName = 'all_issues.csv'
+const outputFileName = argv.fileName
 
 const username = argv.username
 const password = argv.password
