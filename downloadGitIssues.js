@@ -18,7 +18,7 @@ const chalk = require('chalk')
 
 const outputFileName = argv.fileName
 
-const issuesPerPage = 10
+const issuesPerPage = 5
 const username = argv.username
 const password = argv.password
 const repoUserName = argv.repository.slice(19, argv.repository.indexOf('/', 19))
@@ -45,24 +45,16 @@ function main (data, url) {
     body = JSON.parse(body)
     data = _.concat(data, body)
 
-    if (rawLink) {
-
-      if (rawLink.includes('next')) {
-        const link = rawLink.slice(rawLink.indexOf('<') + 1, rawLink.indexOf('>'))
-        let currentPage = rawLink.slice(rawLink.indexOf('page', 60) + 5, rawLink.indexOf('>')) - 1
-        const lastPage = rawLink.slice(rawLink.indexOf('page', 158) + 5, rawLink.indexOf('last') - 8)
-        console.log(chalk.green(`Successfully requested ${currentPage}. page of ${lastPage}`))
-        main(data, link)
-      }
-      else {
-        let lastPage = Number(rawLink.slice(rawLink.indexOf('page', 158) + 5, rawLink.indexOf('prev') - 8)) + 1
-        console.log(chalk.green(`Successfully requested ${lastPage}. page of ${lastPage}`))
-        writeData(convertJSonToCsv(error, data), outputFileName)
-      }
+    if (rawLink && rawLink.includes('next')) {
+      const link = rawLink.slice(rawLink.indexOf('<') + 1, rawLink.indexOf('>'))
+      let currentPage = rawLink.slice(rawLink.indexOf('page', 60) + 5, rawLink.indexOf('>')) - 1
+      const lastPage = rawLink.slice(rawLink.indexOf('page', 158) + 5, rawLink.indexOf('last') - 8)
+      console.log(chalk.green(`Successfully requested ${currentPage}. page of ${lastPage}`))
+      main(data, link)
     }
     else {
-      console.log(chalk.green(`Successfully requested 1. page of 1`))
-      writeData(convertJSonToCsv(error, data), outputFileName)
+        console.log(chalk.green(`Successfully requested last page`))
+        writeData(convertJSonToCsv(error, data), outputFileName)
     }
 
   })
