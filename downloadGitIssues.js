@@ -10,21 +10,20 @@ const argv = require('yargs')
   .help('h')
   .alias('h', 'help')
   .describe('fileName', 'Name of output file')
-  .version(function () {
-    return require('package.json').version
-  })
+  .version("1.0.0")
   .alias('version', 'ver')
   .argv
 const chalk = require('chalk')
 
 const outputFileName = argv.fileName
 
+const issuesPerPage = 5;
 const username = argv.username
 const password = argv.password
 const repoUserName = argv.repository.slice(19, argv.repository.indexOf('/', 19))
 const repoUrl = argv.repository.slice(20 + repoUserName.length)
 
-const startUrl = `https://api.github.com/repos/${repoUserName}/${repoUrl}/issues?per_page=100&state=all&page=1`
+const startUrl = `https://api.github.com/repos/${repoUserName}/${repoUrl}/issues?per_page=${issuesPerPage}&state=all&page=1`
 
 const requestOptions = {
   headers: {
@@ -85,7 +84,10 @@ function convertJSonToCsv (err, data) {
     return `"${object.number}"; "${object.title.replace(/"/g, '\'')}"; "${object.html_url}"; "${stringLabels}"; "${object.state}"; "${date}"\n`
   }).join('')
 
-  console.log(chalk.green('Successfully converted 100 issues!'))
+  let issuesCounter = csvData.slice(csvData.indexOf('"')+1,csvData.indexOf('"',2))
+
+    console.log(chalk.green('Successfully converted '+ issuesCounter+ ' issues!'))
+
   return csvData
 }
 
