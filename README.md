@@ -18,3 +18,7 @@ Change `<USERNAME>`, `<PASSWORD>` and `<REPOSITORY URL>` for real values
 You can add optionals arguments for change name of result file
         
     --fileName <FILENAME>
+
+TODO -password security
+
+    
