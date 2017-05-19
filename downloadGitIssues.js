@@ -11,7 +11,7 @@ const argv = require('yargs')
   .alias('h', 'help')
   .describe('fileName', 'Name of output file')
   .version(function () {
-    return require('/home/developer/git/ro_convert-github-issues-to-csv/package.json').version
+    return require('package.json').version
   })
   .alias('version', 'ver')
   .argv
@@ -23,8 +23,6 @@ const username = argv.username
 const password = argv.password
 const repoUserName = argv.repository.slice(19, argv.repository.indexOf('/', 19))
 const repoUrl = argv.repository.slice(20 + repoUserName.length)
-
-const errorArgument = 'Use proper arguments\n--username\n--password\n--repository'
 
 const startUrl = `https://api.github.com/repos/${repoUserName}/${repoUrl}/issues?per_page=100&state=all&page=1`
 
@@ -65,10 +63,10 @@ function main (data, url) {
 
 function requestBody (url, callback) {
   console.log('Requesting API...')
-  request(url, requestOptions, function (error, response, body) {
-    if (error) throw errorArgument
+  request(url, requestOptions, function (err, response, body) {
+    if (err) throw err
     console.log(chalk.green('API successfully requested'))
-    callback(error, response, body)
+    callback(err, response, body)
   })
 }
 
@@ -87,7 +85,7 @@ function convertJSonToCsv (err, data) {
     return `"${object.number}"; "${object.title.replace(/"/g, '\'')}"; "${object.html_url}"; "${stringLabels}"; "${object.state}"; "${date}"\n`
   }).join('')
 
-  console.log(chalk.green('Successfully converted 10 issues!'))
+  console.log(chalk.green('Successfully converted 100 issues!'))
   return csvData
 }
 

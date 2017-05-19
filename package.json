@@ -1,5 +1,5 @@
 {
-  "name": "issues",
+  "name": "downloadGitIssues",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
@@ -10,11 +10,8 @@
     "request": "^2.81.0",
     "yargs": "^8.0.1"
   },
-  "scripts": {
-    "start": "babel convert_to_csv.js"
-  },
   "bin": {
-    "request-and-convert": "request_and_convert.js"
+    "downloadGitIssues": "downloadGitIssues.js"
   }
 
 }
