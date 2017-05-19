@@ -36,16 +36,21 @@ const requestOptions = {
   }
 }
 
+//Main function for running program
+
 function main (data, url) {
 
   requestBody(url, (error, response, body) => {
 
     const rawLink = response.headers.link
 
+    //take body, parse it and add it to data
+
     body = JSON.parse(body)
     data = _.concat(data, body)
 
     if (rawLink && rawLink.includes('next')) {
+
       const link = rawLink.slice(rawLink.indexOf('<') + 1, rawLink.indexOf('>'))
       const currentPage = link.slice(link.lastIndexOf('=') + 1) - 1
       const lastPage = rawLink.slice(rawLink.indexOf('page', 158) + 5, rawLink.indexOf('last') - 8)
@@ -56,11 +61,14 @@ function main (data, url) {
     }
     else {
       console.log(chalk.green(`Successfully requested last page`))
+      
       writeData(convertJSonToCsv(error, data), outputFileName)
     }
 
   })
 }
+
+//Function using URL to request API
 
 function requestBody (url, callback) {
   console.log('Requesting API...')
@@ -69,6 +77,8 @@ function requestBody (url, callback) {
     callback(err, response, body)
   })
 }
+
+//Function which take JSON data, convert them into CSV format and return them
 
 function convertJSonToCsv (err, jsData) {
   if (err) throw err
@@ -88,6 +98,8 @@ function convertJSonToCsv (err, jsData) {
   return csvData
 }
 
+// Function create a new file and write converted data on him
+
 function writeData (data, outputFileName) {
   fs.writeFile(outputFileName, data, (err) => {
     if (err) throw err
@@ -95,6 +107,8 @@ function writeData (data, outputFileName) {
     console.log(chalk.yellow(`\nProcess was successful\nIssues was downloaded, converted and saved to ${outputFileName}`))
   })
 }
+
+//run main function
 
 main([], startUrl)
 
