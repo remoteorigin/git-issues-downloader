@@ -2,6 +2,7 @@
 
 const fs = require('fs')
 const request = require('request')
+const _ = require('lodash')
 const moment = require('moment')
 const argv = require('yargs')
   .usage('Usage: $0 --username [username] --password [password] --repository [full URL of repository]')
@@ -10,14 +11,14 @@ const argv = require('yargs')
   .help('h')
   .alias('h', 'help')
   .describe('fileName', 'Name of output file')
-  .version("1.0.0")
+  .version('1.0.0')
   .alias('version', 'ver')
   .argv
 const chalk = require('chalk')
 
 const outputFileName = argv.fileName
 
-const issuesPerPage = 5;
+const issuesPerPage = 10
 const username = argv.username
 const password = argv.password
 const repoUserName = argv.repository.slice(19, argv.repository.indexOf('/', 19))
@@ -36,24 +37,32 @@ const requestOptions = {
 }
 
 function main (data, url) {
+
   requestBody(url, (error, response, body) => {
 
     let rawLink = response.headers.link
 
-    data += convertJSonToCsv(error, body)
+    body = JSON.parse(body)
+    data = _.concat(data, body)
 
     if (rawLink) {
 
       if (rawLink.includes('next')) {
         const link = rawLink.slice(rawLink.indexOf('<') + 1, rawLink.indexOf('>'))
+        let currentPage = rawLink.slice(rawLink.indexOf('page', 60) + 5, rawLink.indexOf('>')) - 1
+        const lastPage = rawLink.slice(rawLink.indexOf('page', 158) + 5, rawLink.indexOf('last') - 8)
+        console.log(chalk.green(`Successfully requested ${currentPage}. page of ${lastPage}`))
         main(data, link)
       }
       else {
-        writeData(data, outputFileName)
+        let lastPage = Number(rawLink.slice(rawLink.indexOf('page', 158) + 5, rawLink.indexOf('prev') - 8)) + 1
+        console.log(chalk.green(`Successfully requested ${lastPage}. page of ${lastPage}`))
+        writeData(convertJSonToCsv(error, data), outputFileName)
       }
     }
     else {
-      writeData(data, outputFileName)
+      console.log(chalk.green(`Successfully requested 1. page of 1`))
+      writeData(convertJSonToCsv(error, data), outputFileName)
     }
 
   })
@@ -64,17 +73,14 @@ function requestBody (url, callback) {
   console.log('Requesting API...')
   request(url, requestOptions, function (err, response, body) {
     if (err) throw err
-    console.log(chalk.green('API successfully requested'))
     callback(err, response, body)
   })
 }
 
-function convertJSonToCsv (err, data) {
+function convertJSonToCsv (err, jsData) {
   if (err) throw err
 
   console.log('\nConverting issues...')
-
-  jsData = JSON.parse(data)
 
   const csvData = jsData.map(object => {
     const date = moment(object.created_at).format('L')
@@ -84,9 +90,7 @@ function convertJSonToCsv (err, data) {
     return `"${object.number}"; "${object.title.replace(/"/g, '\'')}"; "${object.html_url}"; "${stringLabels}"; "${object.state}"; "${date}"\n`
   }).join('')
 
-  let issuesCounter = csvData.slice(csvData.indexOf('"')+1,csvData.indexOf('"',2))
-
-    console.log(chalk.green('Successfully converted '+ issuesCounter+ ' issues!'))
+  console.log(chalk.green('Successfully converted ' + jsData.length + ' issues!'))
 
   return csvData
 }
@@ -99,5 +103,5 @@ function writeData (data, outputFileName) {
   })
 }
 
-main('', startUrl)
+main([], startUrl)
 
