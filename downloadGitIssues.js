@@ -18,7 +18,7 @@ const chalk = require('chalk')
 
 const outputFileName = argv.fileName
 
-const issuesPerPage = 20
+const issuesPerPage = 10
 const username = argv.username
 const password = argv.password
 const repoUserName = argv.repository.slice(19, argv.repository.indexOf('/', 19))
@@ -47,14 +47,16 @@ function main (data, url) {
 
     if (rawLink && rawLink.includes('next')) {
       const link = rawLink.slice(rawLink.indexOf('<') + 1, rawLink.indexOf('>'))
-      const currentPage = rawLink.slice(rawLink.indexOf('page', 60) + 5, rawLink.indexOf('>')) - 1
+      const currentPage = link.slice(link.lastIndexOf('=') + 1) - 1
       const lastPage = rawLink.slice(rawLink.indexOf('page', 158) + 5, rawLink.indexOf('last') - 8)
+
       console.log(chalk.green(`Successfully requested ${currentPage}. page of ${lastPage}`))
+
       main(data, link)
     }
     else {
-        console.log(chalk.green(`Successfully requested last page`))
-        writeData(convertJSonToCsv(error, data), outputFileName)
+      console.log(chalk.green(`Successfully requested last page`))
+      writeData(convertJSonToCsv(error, data), outputFileName)
     }
 
   })
