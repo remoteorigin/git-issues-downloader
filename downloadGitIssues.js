@@ -18,7 +18,7 @@ const chalk = require('chalk')
 
 const outputFileName = argv.fileName
 
-const issuesPerPage = 5
+const issuesPerPage = 20
 const username = argv.username
 const password = argv.password
 const repoUserName = argv.repository.slice(19, argv.repository.indexOf('/', 19))
@@ -40,14 +40,14 @@ function main (data, url) {
 
   requestBody(url, (error, response, body) => {
 
-    let rawLink = response.headers.link
+    const rawLink = response.headers.link
 
     body = JSON.parse(body)
     data = _.concat(data, body)
 
     if (rawLink && rawLink.includes('next')) {
       const link = rawLink.slice(rawLink.indexOf('<') + 1, rawLink.indexOf('>'))
-      let currentPage = rawLink.slice(rawLink.indexOf('page', 60) + 5, rawLink.indexOf('>')) - 1
+      const currentPage = rawLink.slice(rawLink.indexOf('page', 60) + 5, rawLink.indexOf('>')) - 1
       const lastPage = rawLink.slice(rawLink.indexOf('page', 158) + 5, rawLink.indexOf('last') - 8)
       console.log(chalk.green(`Successfully requested ${currentPage}. page of ${lastPage}`))
       main(data, link)
@@ -58,7 +58,6 @@ function main (data, url) {
     }
 
   })
-
 }
 
 function requestBody (url, callback) {
@@ -82,7 +81,7 @@ function convertJSonToCsv (err, jsData) {
     return `"${object.number}"; "${object.title.replace(/"/g, '\'')}"; "${object.html_url}"; "${stringLabels}"; "${object.state}"; "${date}"\n`
   }).join('')
 
-  console.log(chalk.green('Successfully converted ' + jsData.length + ' issues!'))
+  console.log(chalk.green(`Successfully converted ${jsData.length} issues!`))
 
   return csvData
 }
