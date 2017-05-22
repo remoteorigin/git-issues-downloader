@@ -18,7 +18,7 @@ const chalk = require('chalk')
 
 const outputFileName = argv.fileName
 
-const issuesPerPage = 10
+const issuesPerPage = 100
 const username = argv.username
 const password = argv.password
 const repoUserName = argv.repository.slice(19, argv.repository.indexOf('/', 19))
@@ -42,30 +42,52 @@ function main (data, url) {
 
   requestBody(url, (error, response, body) => {
 
-    const rawLink = response.headers.link
+    const linkObject = responseToObject(response)
 
     //take body, parse it and add it to data
 
     body = JSON.parse(body)
     data = _.concat(data, body)
 
-    if (rawLink && rawLink.includes('next')) {
+    if (linkObject.nextPage) {
 
-      const link = rawLink.slice(rawLink.indexOf('<') + 1, rawLink.indexOf('>'))
-      const currentPage = link.slice(link.lastIndexOf('=') + 1) - 1
-      const lastPage = rawLink.slice(rawLink.indexOf('page', 158) + 5, rawLink.indexOf('last') - 8)
+      console.log(chalk.green(`Successfully requested ${linkObject.nextPage.number - 1}. page of ${linkObject.lastPage.number}`))
 
-      console.log(chalk.green(`Successfully requested ${currentPage}. page of ${lastPage}`))
-
-      main(data, link)
+      main(data, linkObject.nextPage.url)
     }
     else {
       console.log(chalk.green(`Successfully requested last page`))
-      
+
       writeData(convertJSonToCsv(error, data), outputFileName)
     }
 
   })
+}
+
+function getUrlAndNumber (link) {
+  return {
+    url: link.slice(link.indexOf('<') + 1, link.indexOf('>')),
+    number: link.slice(link.indexOf('page', link.indexOf('state')) + 5, link.indexOf('>'))
+  }
+}
+
+function responseToObject (response) {
+
+  const rawLink = response.headers.link
+
+  if (rawLink && rawLink.includes('next')) {
+    const links = rawLink.split(',')
+
+    let linksInfo = {
+      nextPage: (links[0]) ? getUrlAndNumber(links[0]) : false,
+      lastPage: (links[1]) ? getUrlAndNumber(links[1]) : false,
+      firstPage: (links[2]) ? getUrlAndNumber(links[2]) : false,
+      prevPage: (links[3]) ? getUrlAndNumber(links[3]) : false,
+    }
+
+    return linksInfo
+  }
+  return false
 }
 
 //Function using URL to request API
@@ -101,14 +123,14 @@ function convertJSonToCsv (err, jsData) {
 // Function create a new file and write converted data on him
 
 function writeData (data, outputFileName) {
+  console.log('\nWriting data to csv file')
   fs.writeFile(outputFileName, data, (err) => {
     if (err) throw err
-    console.log('Writing data to csv file')
-    console.log(chalk.yellow(`\nProcess was successful\nIssues was downloaded, converted and saved to ${outputFileName}`))
+
+    console.log(chalk.yellow(`\nIssues was downloaded, converted and saved to ${outputFileName}`))
   })
 }
 
 //run main function
 
 main([], startUrl)
-
