@@ -22,7 +22,7 @@ const issuesPerPage = 100
 const username = argv.username
 const password = argv.password
 const repoUserName = argv.repository.slice(19, argv.repository.indexOf('/', 19))
-const repoUrl = (argv.repository.slice(20 + repoUserName.length,argv.repository.lastIndexOf('/'))) ? argv.repository.slice(20 + repoUserName.length,argv.repository.lastIndexOf('/')) : argv.repository.slice(20 + repoUserName.length)
+const repoUrl = (argv.repository.slice(20 + repoUserName.length, argv.repository.lastIndexOf('/'))) ? argv.repository.slice(20 + repoUserName.length, argv.repository.lastIndexOf('/')) : argv.repository.slice(20 + repoUserName.length)
 
 const startUrl = `https://api.github.com/repos/${repoUserName}/${repoUrl}/issues?per_page=${issuesPerPage}&state=all&page=1`
 
@@ -46,7 +46,6 @@ function main (data, url) {
 
     //take body, parse it and add it to data
 
-    body = JSON.parse(body)
     data = _.concat(data, body)
 
     if (linkObject.nextPage) {
@@ -99,8 +98,28 @@ function responseToObject (response) {
 function requestBody (url, callback) {
   console.log('Requesting API...')
   request(url, requestOptions, function (err, response, body) {
-    if (err) throw err
-    callback(err, response, body)
+
+    const JSObject = JSON.parse(body)
+
+    if (!JSObject.length) {
+
+      //switch for various error messages
+
+      switch (JSObject.message) {
+        case 'Not Found':
+          console.log(chalk.red('We didn\'t find any repository on this URL, please check it'))
+          break
+        case 'Bad credentials':
+          console.log(chalk.red('Your username or password is invalid, please check it'))
+          break
+        default:
+          console.log(chalk.red('Repository have 0 issues. Nothing to download'))
+      }
+    }
+    else {
+      callback(err, response, JSObject)
+    }
+
   })
 }
 
@@ -122,6 +141,7 @@ function convertJSonToCsv (err, jsData) {
   console.log(chalk.green(`Successfully converted ${jsData.length} issues!`))
 
   return csvData
+
 }
 
 //create a new file and write converted data on him
