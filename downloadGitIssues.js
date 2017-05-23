@@ -11,7 +11,7 @@ const argv = require('yargs')
   .help('h')
   .alias('h', 'help')
   .describe('fileName', 'Name of output file')
-  .version('1.0.0')
+  .version()
   .alias('version', 'ver')
   .argv
 const chalk = require('chalk')
@@ -22,7 +22,7 @@ const issuesPerPage = 100
 const username = argv.username
 const password = argv.password
 const repoUserName = argv.repository.slice(19, argv.repository.indexOf('/', 19))
-const repoUrl = argv.repository.slice(20 + repoUserName.length)
+const repoUrl = (argv.repository.slice(20 + repoUserName.length,argv.repository.lastIndexOf('/'))) ? argv.repository.slice(20 + repoUserName.length,argv.repository.lastIndexOf('/')) : argv.repository.slice(20 + repoUserName.length)
 
 const startUrl = `https://api.github.com/repos/${repoUserName}/${repoUrl}/issues?per_page=${issuesPerPage}&state=all&page=1`
 
@@ -36,7 +36,7 @@ const requestOptions = {
   }
 }
 
-//Main function for running program
+//main function for running program
 
 function main (data, url) {
 
@@ -64,12 +64,16 @@ function main (data, url) {
   })
 }
 
+//get page url and page number from link
+
 function getUrlAndNumber (link) {
   return {
     url: link.slice(link.indexOf('<') + 1, link.indexOf('>')),
     number: link.slice(link.indexOf('page', link.indexOf('state')) + 5, link.indexOf('>'))
   }
 }
+
+//create and return links info (page url and page number for all 4 links in response.headers.link) from whole response
 
 function responseToObject (response) {
 
@@ -90,7 +94,7 @@ function responseToObject (response) {
   return false
 }
 
-//Function using URL to request API
+//use url and request api
 
 function requestBody (url, callback) {
   console.log('Requesting API...')
@@ -100,7 +104,7 @@ function requestBody (url, callback) {
   })
 }
 
-//Function which take JSON data, convert them into CSV format and return them
+//take JSON data, convert them into CSV format and return them
 
 function convertJSonToCsv (err, jsData) {
   if (err) throw err
@@ -120,7 +124,7 @@ function convertJSonToCsv (err, jsData) {
   return csvData
 }
 
-// Function create a new file and write converted data on him
+//create a new file and write converted data on him
 
 function writeData (data, outputFileName) {
   console.log('\nWriting data to csv file')
