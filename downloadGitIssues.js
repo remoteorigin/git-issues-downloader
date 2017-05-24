@@ -4,9 +4,10 @@ const fs = require('fs')
 const request = require('request')
 const _ = require('lodash')
 const moment = require('moment')
+const read = require('read')
 const argv = require('yargs')
-  .usage('Usage: $0 --username [username] --password [password] --repository [full URL of repository]')
-  .demandOption(['username', 'password', 'repository'])
+  .usage('Usage: $0 --username [username] --repository [full URL of repository]')
+  .demandOption(['username', 'repository'])
   .default('fileName', 'all_issues.csv')
   .help('h')
   .alias('h', 'help')
@@ -19,21 +20,41 @@ const chalk = require('chalk')
 const outputFileName = argv.fileName
 
 const issuesPerPage = 100
-const username = argv.username
-const password = argv.password
 const repoUserName = argv.repository.slice(19, argv.repository.indexOf('/', 19))
 const repoUrl = (argv.repository.slice(20 + repoUserName.length, argv.repository.lastIndexOf('/'))) ? argv.repository.slice(20 + repoUserName.length, argv.repository.lastIndexOf('/')) : argv.repository.slice(20 + repoUserName.length)
 
 const startUrl = `https://api.github.com/repos/${repoUserName}/${repoUrl}/issues?per_page=${issuesPerPage}&state=all&page=1`
 
-const requestOptions = {
-  headers: {
-    'User-Agent': 'request'
-  },
-  auth: {
-    'user': username,
-    'pass': password
-  }
+// callback function for getting secret password from prompt
+
+function getPassword (callback) {
+  read({prompt: 'Password: ', silent: true}, function (er, password) {
+    callback(password)
+  })
+
+}
+
+// callback function for getting requested options
+
+function getRequestedOptions (callback) {
+  const username = argv.username
+
+  //waiting for password
+
+  getPassword((password) => {
+
+    const requestOptions = {
+      headers: {
+        'User-Agent': 'request'
+      },
+      auth: {
+        'user': username,
+        'pass': password
+      }
+    }
+
+    callback(requestOptions)
+  })
 }
 
 //main function for running program
@@ -55,7 +76,7 @@ function main (data, url) {
       main(data, linkObject.nextPage.url)
     }
     else {
-      console.log(chalk.green(`Successfully requested last page`))
+      console.log(chalk.green('Successfully requested last page'))
 
       writeData(convertJSonToCsv(error, data), outputFileName)
     }
@@ -96,30 +117,32 @@ function responseToObject (response) {
 //use url and request api
 
 function requestBody (url, callback) {
-  console.log('Requesting API...')
-  request(url, requestOptions, function (err, response, body) {
+  getRequestedOptions((requestedOptions) => {
+    console.log('Requesting API...')
+    request(url, requestedOptions, function (err, response, body) {
 
-    const JSObject = JSON.parse(body)
+      const JSObject = JSON.parse(body)
 
-    if (!JSObject.length) {
+      if (!JSObject.length) {
 
-      //switch for various error messages
+        //switch for various error messages
 
-      switch (JSObject.message) {
-        case 'Not Found':
-          console.log(chalk.red('We didn\'t find any repository on this URL, please check it'))
-          break
-        case 'Bad credentials':
-          console.log(chalk.red('Your username or password is invalid, please check it'))
-          break
-        default:
-          console.log(chalk.red('Repository have 0 issues. Nothing to download'))
+        switch (JSObject.message) {
+          case 'Not Found':
+            console.log(chalk.red('We didn\'t find any repository on this URL, please check it'))
+            break
+          case 'Bad credentials':
+            console.log(chalk.red('Your username or password is invalid, please check it'))
+            break
+          default:
+            console.log(chalk.red('Repository have 0 issues. Nothing to download'))
+        }
       }
-    }
-    else {
-      callback(err, response, JSObject)
-    }
+      else {
+        callback(err, response, JSObject)
+      }
 
+    })
   })
 }
 
