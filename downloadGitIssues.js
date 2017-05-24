@@ -6,8 +6,8 @@ const _ = require('lodash')
 const moment = require('moment')
 const read = require('read')
 const argv = require('yargs')
-  .usage('Usage: $0 --username [username] --repository [full URL of repository]')
-  .demandOption(['username', 'repository'])
+  .usage('Usage: $0 --username [username] --password [password] --repository [full URL of repository]')
+  .demandOption(['repository'])
   .default('fileName', 'all_issues.csv')
   .help('h')
   .alias('h', 'help')
@@ -19,7 +19,7 @@ const chalk = require('chalk')
 
 const outputFileName = argv.fileName
 
-const issuesPerPage = 100
+const issuesPerPage = 10
 const repoUserName = argv.repository.slice(19, argv.repository.indexOf('/', 19))
 const repoUrl = (argv.repository.slice(20 + repoUserName.length, argv.repository.lastIndexOf('/'))) ? argv.repository.slice(20 + repoUserName.length, argv.repository.lastIndexOf('/')) : argv.repository.slice(20 + repoUserName.length)
 
@@ -37,31 +37,42 @@ function getPassword (callback) {
 // callback function for getting requested options
 
 function getRequestedOptions (callback) {
+
+  const requestOptions = {
+    headers: {
+      'User-Agent': 'request'
+    },
+    auth: {
+      'user': "",
+      'pass': ""
+    }
+  }
+
   const username = argv.username
 
-  //waiting for password
-
-  getPassword((password) => {
-
-    const requestOptions = {
-      headers: {
-        'User-Agent': 'request'
-      },
-      auth: {
-        'user': username,
-        'pass': password
-      }
-    }
+  if (argv.password){
+    requestOptions.auth.pass=argv.password
+    requestOptions.auth.user=username
 
     callback(requestOptions)
-  })
+  }
+  else {
+    getPassword((password) => {
+      requestOptions.auth.pass=password
+      requestOptions.auth.user=username
+
+      callback(requestOptions)
+    })
+  }
+
+
 }
 
 //main function for running program
 
-function main (data, url) {
+function main (data, url,requestedOptions) {
 
-  requestBody(url, (error, response, body) => {
+  requestBody(url,requestedOptions, (error, response, body) => {
 
     const linkObject = responseToObject(response)
 
@@ -73,7 +84,7 @@ function main (data, url) {
 
       console.log(chalk.green(`Successfully requested ${linkObject.nextPage.number - 1}. page of ${linkObject.lastPage.number}`))
 
-      main(data, linkObject.nextPage.url)
+      main(data, linkObject.nextPage.url,requestedOptions)
     }
     else {
       console.log(chalk.green('Successfully requested last page'))
@@ -116,8 +127,7 @@ function responseToObject (response) {
 
 //use url and request api
 
-function requestBody (url, callback) {
-  getRequestedOptions((requestedOptions) => {
+function requestBody (url,requestedOptions, callback) {
     console.log('Requesting API...')
     request(url, requestedOptions, function (err, response, body) {
 
@@ -143,7 +153,6 @@ function requestBody (url, callback) {
       }
 
     })
-  })
 }
 
 //take JSON data, convert them into CSV format and return them
@@ -179,5 +188,8 @@ function writeData (data, outputFileName) {
 }
 
 //run main function
+getRequestedOptions((requestedOptions) => {
 
-main([], startUrl)
+  main([], startUrl,requestedOptions)
+
+})
