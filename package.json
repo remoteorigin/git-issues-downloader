@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "main": "app.js",
   "license": "MIT",
+  "scripts": {
+    "test": "mocha test"
+  },
   "dependencies": {
     "chalk": "^1.1.3",
     "lodash": "^4.17.4",

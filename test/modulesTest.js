@@ -3,7 +3,7 @@ const expect = chai.expect
 const assert = chai.assert
 
 const request = require('request')
-const sinon = require('sinon')
+// const sinon = require('sinon')
 
 const modules = require('./modules.js')
 const dummyData = require('./dummyData')
