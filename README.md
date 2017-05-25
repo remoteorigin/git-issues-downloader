@@ -1,26 +1,13 @@
-# Download and Convert GitHub Issues into CSV
+# Git Issues Downloader
 
-Basic launch
+> Command line application allowing you to download all issues in the CSV format from the public or private repository
 
-    node downloadGitIssues
-    
-Basic informational arguments which you can you
+## Project Setup
 
-    --help
-    --version
-    
-You must add required arguments 
+    git clone git@github.com:remoteorigin/git-issues-downloader.git
+    cd git-issues-downloader
+    yarn install
 
-Change `<USERNAME>`, `<PASSWORD>` and `<REPOSITORY URL>` for real values
-     
-    node downloadGitIssues --username <USERNAME> --password <PASSWORD> --repository <REPOSITORY URL>
-    
-You can add optionals arguments for change name of result file
-        
-    --fileName <FILENAME>
+## Running Project
 
-### TODO
-
-- password security
-
-    
+    node app.js
