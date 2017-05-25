@@ -19,7 +19,7 @@ const chalk = require('chalk')
 
 const outputFileName = argv.fileName
 
-const issuesPerPage = 10
+const issuesPerPage = 100
 const repoUserName = argv.repository.slice(19, argv.repository.indexOf('/', 19))
 const repoUrl = (argv.repository.slice(20 + repoUserName.length, argv.repository.lastIndexOf('/'))) ? argv.repository.slice(20 + repoUserName.length, argv.repository.lastIndexOf('/')) : argv.repository.slice(20 + repoUserName.length)
 
@@ -27,8 +27,8 @@ const startUrl = `https://api.github.com/repos/${repoUserName}/${repoUrl}/issues
 
 // callback function for getting secret password from prompt
 
-function getPassword (callback) {
-  read({prompt: 'Password: ', silent: true}, function (er, password) {
+function getPassword (auth, silent, callback) {
+  read({prompt: `${auth}: `, silent: silent}, function (er, password) {
     callback(password)
   })
 
@@ -36,43 +36,62 @@ function getPassword (callback) {
 
 // callback function for getting requested options
 
-function getRequestedOptions (callback) {
+function getRequestedOptions (username, password, callback) {
 
   const requestOptions = {
     headers: {
       'User-Agent': 'request'
     },
     auth: {
-      'user': "",
-      'pass': ""
+      'user': '',
+      'pass': ''
     }
   }
 
-  const username = argv.username
-
-  if (argv.password){
-    requestOptions.auth.pass=argv.password
-    requestOptions.auth.user=username
-
+  if (username && password) {
+    requestOptions.auth.user = username
+    requestOptions.auth.pass = password
     callback(requestOptions)
   }
   else {
-    getPassword((password) => {
-      requestOptions.auth.pass=password
-      requestOptions.auth.user=username
+    if (password) {
+      requestOptions.auth.pass = password
+      getPassword('username', false, (usernameConsoleInput) => {
+        requestOptions.auth.user = usernameConsoleInput
 
-      callback(requestOptions)
-    })
+        callback(requestOptions)
+      })
+    }
+    else {
+      if (username) {
+        requestOptions.auth.user = username
+        getPassword('password', true, (passwordConsoleInput) => {
+          requestOptions.auth.pass = passwordConsoleInput
+
+          callback(requestOptions)
+        })
+      }
+      else {
+        getPassword('username', false, (usernameConsoleInput) => {
+          requestOptions.auth.user = usernameConsoleInput
+          getPassword('password', true, (passwordConsoleInput) => {
+            requestOptions.auth.pass = passwordConsoleInput
+
+            callback(requestOptions)
+          })
+
+        })
+      }
+    }
   }
-
 
 }
 
 //main function for running program
 
-function main (data, url,requestedOptions) {
+function main (data, url, requestedOptions) {
 
-  requestBody(url,requestedOptions, (error, response, body) => {
+  requestBody(url, requestedOptions, (error, response, body) => {
 
     const linkObject = responseToObject(response)
 
@@ -84,7 +103,7 @@ function main (data, url,requestedOptions) {
 
       console.log(chalk.green(`Successfully requested ${linkObject.nextPage.number - 1}. page of ${linkObject.lastPage.number}`))
 
-      main(data, linkObject.nextPage.url,requestedOptions)
+      main(data, linkObject.nextPage.url, requestedOptions)
     }
     else {
       console.log(chalk.green('Successfully requested last page'))
@@ -127,32 +146,32 @@ function responseToObject (response) {
 
 //use url and request api
 
-function requestBody (url,requestedOptions, callback) {
-    console.log('Requesting API...')
-    request(url, requestedOptions, function (err, response, body) {
+function requestBody (url, requestedOptions, callback) {
+  console.log('Requesting API...')
+  request(url, requestedOptions, function (err, response, body) {
 
-      const JSObject = JSON.parse(body)
+    const JSObject = JSON.parse(body)
 
-      if (!JSObject.length) {
+    if (!JSObject.length) {
 
-        //switch for various error messages
+      //switch for various error messages
 
-        switch (JSObject.message) {
-          case 'Not Found':
-            console.log(chalk.red('We didn\'t find any repository on this URL, please check it'))
-            break
-          case 'Bad credentials':
-            console.log(chalk.red('Your username or password is invalid, please check it'))
-            break
-          default:
-            console.log(chalk.red('Repository have 0 issues. Nothing to download'))
-        }
+      switch (JSObject.message) {
+        case 'Not Found':
+          console.log(chalk.red('We didn\'t find any repository on this URL, please check it'))
+          break
+        case 'Bad credentials':
+          console.log(chalk.red('Your username or password is invalid, please check it'))
+          break
+        default:
+          console.log(chalk.red('Repository have 0 issues. Nothing to download'))
       }
-      else {
-        callback(err, response, JSObject)
-      }
+    }
+    else {
+      callback(err, response, JSObject)
+    }
 
-    })
+  })
 }
 
 //take JSON data, convert them into CSV format and return them
@@ -188,8 +207,8 @@ function writeData (data, outputFileName) {
 }
 
 //run main function
-getRequestedOptions((requestedOptions) => {
+getRequestedOptions(argv.username, argv.password, (requestedOptions) => {
 
-  main([], startUrl,requestedOptions)
+  main([], startUrl, requestedOptions)
 
 })
