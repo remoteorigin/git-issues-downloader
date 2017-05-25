@@ -5,8 +5,9 @@ const request = require('request')
 const _ = require('lodash')
 const moment = require('moment')
 const read = require('read')
+const chalk = require('chalk')
 const argv = require('yargs')
-  .usage('Usage: $0 --username [username] --password [password] --repository [full URL of repository]')
+  .usage('Usage: $0 --username [username] --password [password] --repository [URL]')
   .demandOption(['repository'])
   .default('fileName', 'all_issues.csv')
   .help('h')
@@ -15,7 +16,6 @@ const argv = require('yargs')
   .version()
   .alias('version', 'ver')
   .argv
-const chalk = require('chalk')
 
 const outputFileName = argv.fileName
 
@@ -132,14 +132,12 @@ function responseToObject (response) {
   if (rawLink && rawLink.includes('next')) {
     const links = rawLink.split(',')
 
-    let linksInfo = {
+    return {
       nextPage: (links[0]) ? getUrlAndNumber(links[0]) : false,
       lastPage: (links[1]) ? getUrlAndNumber(links[1]) : false,
       firstPage: (links[2]) ? getUrlAndNumber(links[2]) : false,
       prevPage: (links[3]) ? getUrlAndNumber(links[3]) : false,
     }
-
-    return linksInfo
   }
   return false
 }
@@ -158,13 +156,13 @@ function requestBody (url, requestedOptions, callback) {
 
       switch (JSObject.message) {
         case 'Not Found':
-          console.log(chalk.red('We didn\'t find any repository on this URL, please check it'))
+          console.log(chalk.red('\nWe didn\'t find any repository on this URL, please check it'))
           break
         case 'Bad credentials':
-          console.log(chalk.red('Your username or password is invalid, please check it'))
+          console.log(chalk.red('\nYour username or password is invalid, please check it'))
           break
         default:
-          console.log(chalk.red('Repository have 0 issues. Nothing to download'))
+          console.log(chalk.red('\nRepository have 0 issues. Nothing to download'))
       }
     }
     else {
@@ -188,7 +186,7 @@ function convertJSonToCsv (err, jsData) {
     return `"${object.number}"; "${object.title.replace(/"/g, '\'')}"; "${object.html_url}"; "${stringLabels}"; "${object.state}"; "${date}"\n`
   }).join('')
 
-  console.log(chalk.green(`Successfully converted ${jsData.length} issues!`))
+  console.log(chalk.green(`\mSuccessfully converted ${jsData.length} issues!`))
 
   return csvData
 
@@ -207,7 +205,5 @@ function writeData (data, outputFileName) {
 
 //run main function
 getRequestedOptions(argv.username, argv.password, (requestedOptions) => {
-
   main([], startUrl, requestedOptions)
-
 })
