@@ -31,13 +31,11 @@ function getAuth (auth, silent, callback) {
   read({prompt: `${auth}: `, silent: silent}, function (er, password) {
     callback(password)
   })
-
 }
 
 // callback function for getting requested options
 
 function getRequestedOptions (username, password, callback) {
-
   const requestOptions = {
     headers: {
       'User-Agent': 'request'
@@ -52,8 +50,7 @@ function getRequestedOptions (username, password, callback) {
     requestOptions.auth.user = username
     requestOptions.auth.pass = password
     callback(requestOptions)
-  }
-  else {
+  } else {
     if (password) {
       requestOptions.auth.pass = password
       getAuth('username', false, (usernameConsoleInput) => {
@@ -61,8 +58,7 @@ function getRequestedOptions (username, password, callback) {
 
         callback(requestOptions)
       })
-    }
-    else {
+    } else {
       if (username) {
         requestOptions.auth.user = username
         getAuth('password', true, (passwordConsoleInput) => {
@@ -70,8 +66,7 @@ function getRequestedOptions (username, password, callback) {
 
           callback(requestOptions)
         })
-      }
-      else {
+      } else {
         getAuth('username', false, (usernameConsoleInput) => {
           requestOptions.auth.user = usernameConsoleInput
           getAuth('password', true, (passwordConsoleInput) => {
@@ -79,42 +74,35 @@ function getRequestedOptions (username, password, callback) {
 
             callback(requestOptions)
           })
-
         })
       }
     }
   }
-
 }
 
-//main function for running program
+// main function for running program
 
 function main (data, url, requestedOptions) {
-
   requestBody(url, requestedOptions, (error, response, body) => {
-
     const linkObject = responseToObject(response.headers)
 
-    //take body, parse it and add it to data
+    // take body, parse it and add it to data
 
     data = _.concat(data, body)
 
     if (linkObject.nextPage) {
-
       console.log(chalk.green(`Successfully requested ${linkObject.nextPage.number - 1}. page of ${linkObject.lastPage.number}`))
 
       main(data, linkObject.nextPage.url, requestedOptions)
-    }
-    else {
+    } else {
       console.log(chalk.green('Successfully requested last page'))
 
       writeData(convertJSonToCsv(error, data), outputFileName)
     }
-
   })
 }
 
-//get page url and page number from link
+// get page url and page number from link
 
 function getUrlAndNumber (link) {
   return {
@@ -123,10 +111,9 @@ function getUrlAndNumber (link) {
   }
 }
 
-//create and return links info (page url and page number for all 4 links in response.headers.link) from whole response
+// create and return links info (page url and page number for all 4 links in response.headers.link) from whole response
 
 function responseToObject (response) {
-
   const rawLink = response.link
 
   if (rawLink && rawLink.includes('next')) {
@@ -136,23 +123,21 @@ function responseToObject (response) {
       nextPage: (links[0]) ? getUrlAndNumber(links[0]) : false,
       lastPage: (links[1]) ? getUrlAndNumber(links[1]) : false,
       firstPage: (links[2]) ? getUrlAndNumber(links[2]) : false,
-      prevPage: (links[3]) ? getUrlAndNumber(links[3]) : false,
+      prevPage: (links[3]) ? getUrlAndNumber(links[3]) : false
     }
   }
   return false
 }
 
-//use url and request api
+// use url and request api
 
 function requestBody (url, requestedOptions, callback) {
   console.log('Requesting API...')
   request(url, requestedOptions, function (err, response, body) {
-
     const JSObject = JSON.parse(body)
 
     if (!JSObject.length) {
-
-      //switch for various error messages
+      // switch for various error messages
 
       switch (JSObject.message) {
         case 'Not Found':
@@ -164,15 +149,13 @@ function requestBody (url, requestedOptions, callback) {
         default:
           console.log(chalk.red('\nRepository have 0 issues. Nothing to download'))
       }
-    }
-    else {
+    } else {
       callback(err, response, JSObject)
     }
-
   })
 }
 
-//take JSON data, convert them into CSV format and return them
+// take JSON data, convert them into CSV format and return them
 
 function convertJSonToCsv (err, jsData) {
   if (err) throw err
@@ -189,10 +172,9 @@ function convertJSonToCsv (err, jsData) {
   console.log(chalk.green(`\mSuccessfully converted ${jsData.length} issues!`))
 
   return csvData
-
 }
 
-//create a new file and write converted data on him
+// create a new file and write converted data on him
 
 function writeData (data, outputFileName) {
   console.log('\nWriting data to csv file')
@@ -203,7 +185,7 @@ function writeData (data, outputFileName) {
   })
 }
 
-//run main function
+// run main function
 getRequestedOptions(argv.username, argv.password, (requestedOptions) => {
   main([], startUrl, requestedOptions)
 })
