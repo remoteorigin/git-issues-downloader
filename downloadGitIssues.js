@@ -25,9 +25,9 @@ const repoUrl = (argv.repository.slice(20 + repoUserName.length, argv.repository
 
 const startUrl = `https://api.github.com/repos/${repoUserName}/${repoUrl}/issues?per_page=${issuesPerPage}&state=all&page=1`
 
-// callback function for getting secret password from prompt
+// callback function for getting input from prompt
 
-function getPassword (auth, silent, callback) {
+function getAuth (auth, silent, callback) {
   read({prompt: `${auth}: `, silent: silent}, function (er, password) {
     callback(password)
   })
@@ -56,7 +56,7 @@ function getRequestedOptions (username, password, callback) {
   else {
     if (password) {
       requestOptions.auth.pass = password
-      getPassword('username', false, (usernameConsoleInput) => {
+      getAuth('username', false, (usernameConsoleInput) => {
         requestOptions.auth.user = usernameConsoleInput
 
         callback(requestOptions)
@@ -65,16 +65,16 @@ function getRequestedOptions (username, password, callback) {
     else {
       if (username) {
         requestOptions.auth.user = username
-        getPassword('password', true, (passwordConsoleInput) => {
+        getAuth('password', true, (passwordConsoleInput) => {
           requestOptions.auth.pass = passwordConsoleInput
 
           callback(requestOptions)
         })
       }
       else {
-        getPassword('username', false, (usernameConsoleInput) => {
+        getAuth('username', false, (usernameConsoleInput) => {
           requestOptions.auth.user = usernameConsoleInput
-          getPassword('password', true, (passwordConsoleInput) => {
+          getAuth('password', true, (passwordConsoleInput) => {
             requestOptions.auth.pass = passwordConsoleInput
 
             callback(requestOptions)
@@ -185,7 +185,6 @@ function convertJSonToCsv (err, jsData) {
     const date = moment(object.created_at).format('L')
     const labels = object.labels
     const stringLabels = labels.map(label => label.name).toString()
-
     return `"${object.number}"; "${object.title.replace(/"/g, '\'')}"; "${object.html_url}"; "${stringLabels}"; "${object.state}"; "${date}"\n`
   }).join('')
 
