@@ -7,6 +7,9 @@
     "test": "mocha test",
     "lint": "standard"
   },
+  "standard": {
+    "env": [ "mocha" ]
+  },
   "dependencies": {
     "chalk": "^1.1.3",
     "lodash": "^4.17.4",
