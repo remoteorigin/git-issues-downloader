@@ -1,7 +1,7 @@
 {
-  "name": "downloadGitIssues",
-  "version": "1.0.0",
-  "main": "index.js",
+  "name": "git-issues-downloader",
+  "version": "0.0.1",
+  "main": "app.js",
   "license": "MIT",
   "dependencies": {
     "chalk": "^1.1.3",
@@ -12,10 +12,13 @@
     "yargs": "^8.0.1"
   },
   "bin": {
-    "downloadGitIssues": "downloadGitIssues.js"
+    "git-issues-downloader": "app.js"
   },
   "devDependencies": {
     "chai": "^3.5.0",
     "mocha": "^3.4.1"
-  }
+  },
+  "description": "Command line application allowing you to download all issues in the CSV format from the public or private repository",
+  "repository": "git@github.com:remoteorigin/git-issues-downloader.git",
+  "author": "Pavel Binar <pavel@remoteorigin.co>"
 }
