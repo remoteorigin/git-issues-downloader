@@ -2,7 +2,3 @@
 .idea
 node_modules
 npm-debug.log
-all_issues*.json
-
-all_issues\.csv
-test
