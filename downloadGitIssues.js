@@ -93,7 +93,7 @@ function main (data, url, requestedOptions) {
 
   requestBody(url, requestedOptions, (error, response, body) => {
 
-    const linkObject = responseToObject(response)
+    const linkObject = responseToObject(response.headers)
 
     //take body, parse it and add it to data
 
@@ -127,7 +127,7 @@ function getUrlAndNumber (link) {
 
 function responseToObject (response) {
 
-  const rawLink = response.headers.link
+  const rawLink = response.link
 
   if (rawLink && rawLink.includes('next')) {
     const links = rawLink.split(',')
