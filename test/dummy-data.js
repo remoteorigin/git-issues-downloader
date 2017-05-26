@@ -25,15 +25,17 @@ module.exports = {
     'x-served-by': '9000e9eef7bb1e89f22030c676da140e',
     'x-github-request-id': 'D3E0:15878:8BC03BB:A66CB9F:5926F327'},
 
-  testRequestOptions: {
+  requestOptions : {
     headers: {
       'User-Agent': 'request'
     },
+    url: '<https://api.github.com/repositories/90146723/issues?per_page=10&state=all&page=2>',
     auth: {
       'user': 'username',
       'pass': 'password'
     }
   },
+
   startUrl: 'https://api.github.com/repos/pavelbinar/ro_convert-github-issues-to-csv/issues?per_page=100&state=all&page=1',
 
   issuesResult21: `"21"; "issue message"; "https://github.com/pavelbinar/ro_convert-github-issues-to-csv/issues/21"; ""; "open"; "05/23/2017"

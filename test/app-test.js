@@ -3,7 +3,7 @@ const expect = chai.expect
 const assert = chai.assert
 
 const request = require('request')
-// const sinon = require('sinon')
+const sinon = require('sinon')
 
 const app = require('../app.js')
 const dummyData = require('./dummy-data')
@@ -36,8 +36,8 @@ describe('downloadGitIssues', function () {
 
   describe('getRequestedOptions', function () {
     it('should return object with username and password', function () {
-      getRequestedOptions('username', 'password', (done) => {
-        expect(done).to.deep.equal(dummyData.testRequestOptions)
+      getRequestedOptions('username', 'password',dummyData.nextPageLink, (done) => {
+        expect(done).to.deep.equal(dummyData.requestOptions)
       })
     })
   })
@@ -55,25 +55,5 @@ describe('downloadGitIssues', function () {
       expect(result).to.deep.equal(dummyData.issuesResult20)
     })
   })
-  // describe('User Profile', function(){
-  //   before(function(){
-  //     sinon
-  //       .stub(request, 'get')
-  //       .yields(null, null, JSON.stringify({username: "username"},{password:"password"}));
-  //   });
-  //
-  //   after(function(){
-  //     request.get.restore();
-  //   });
-  //
-  //   it('can get user profile', function(done){
-  //     requestBody('bulkan', function(err, result){
-  //       if(err) return done(err);
-  //
-  //       // simple should.js assertion
-  //       result.should.not.be.empty;
-  //       done();
-  //     });
-  //   });
-  // });
+
 })
