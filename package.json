@@ -4,6 +4,7 @@
   "main": "app.js",
   "license": "MIT",
   "scripts": {
+    "start": "node app.js ; exit 0",
     "test": "mocha test",
     "lint": "standard"
   },
