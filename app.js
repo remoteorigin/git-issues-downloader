@@ -81,6 +81,7 @@ exports.getRequestedOptions = function (username, password, url, callback) {
 // main function for running program
 
 exports.main = function (data, requestedOptions) {
+  console.log('Requesting API...')
   this.requestBody(requestedOptions, (error, response, body) => {
     const linkObject = this.responseToObject(response.headers)
 
@@ -96,7 +97,9 @@ exports.main = function (data, requestedOptions) {
     } else {
       console.log(chalk.green('Successfully requested last page'))
 
+      console.log('\nConverting issues...')
       const csvData = this.convertJSonToCsv(data)
+      console.log(chalk.green(`\nSuccessfully converted ${data.length} issues!`))
 
       this.writeData(csvData, outputFileName)
     }
@@ -133,8 +136,7 @@ exports.responseToObject = function (response) {
 // use url and request api
 
 exports.requestBody = function (requestedOptions, callback) {
-  console.log('Requesting API...')
-  request(requestedOptions, function (err, response, body) {
+  request.get(requestedOptions, function (err, response, body) {
     const JSObject = JSON.parse(body)
 
     if (!JSObject.length) {
@@ -160,16 +162,12 @@ exports.requestBody = function (requestedOptions, callback) {
 
 exports.convertJSonToCsv = function (jsData) {
 
-  console.log('\nConverting issues...')
-
   const csvData = jsData.map(object => {
     const date = moment(object.created_at).format('L')
     const labels = object.labels
     const stringLabels = labels.map(label => label.name).toString()
     return `"${object.number}"; "${object.title.replace(/"/g, '\'')}"; "${object.html_url}"; "${stringLabels}"; "${object.state}"; "${date}"\n`
   }).join('')
-
-  console.log(chalk.green(`\mSuccessfully converted ${jsData.length} issues!`))
 
   return csvData
 }
