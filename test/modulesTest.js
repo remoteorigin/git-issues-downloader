@@ -6,7 +6,7 @@ const request = require('request')
 // const sinon = require('sinon')
 
 const modules = require('./modules.js')
-const dummyData = require('./dummyData')
+const dummyData = require('./dummy-data')
 
 const responseToObject = modules.responseToObject(dummyData.apiResponse)
 const getRequestedOptions = modules.getRequestedOptions

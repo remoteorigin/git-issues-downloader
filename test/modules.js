@@ -1,5 +1,5 @@
 const read = require('read')
-const trashData = require('./dummyData')
+const trashData = require('./dummy-data')
 const fs = require('fs')
 const request = require('request')
 const _ = require('lodash')
