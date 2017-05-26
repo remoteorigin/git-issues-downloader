@@ -8,16 +8,23 @@ const read = require('read')
 const chalk = require('chalk')
 const sinon = require('sinon')
 const argv = require('yargs')
-  .usage('Usage: git-issues-downloader [options] URL')
-  .help('help')
-  .alias('help', 'h')
-  .version()
-  .alias('version', 'v')
+  .usage('Usage: git-issues-downloader [options] URL \nType git-issues-downloader --help to see a list of all options.')
+  .help('h')
+
+  .version(function() {
+    return `Version: ${require('./package.json').version}`
+  })
+
+  .alias('h', 'help')
+  .alias('v', 'version')
+  .alias('u', 'username')
+  .alias('p', 'password')
+  .alias('f', 'filename')
+  .describe('help', 'Show help')
+  .describe('username', 'Your GitHub username')
+  .describe('password', 'Your GitHub password')
+  .describe('filename', 'Name of the output file')
   .default('filename', 'all_issues.csv')
-  .describe('filename', 'Name of output file')
-  .describe('username', 'Your username on github')
-  .describe('password', 'Your password on github')
-  .alias('filename', 'f')
   .argv
 
 const outputFileName = argv.filename
