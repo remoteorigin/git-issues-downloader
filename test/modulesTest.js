@@ -5,19 +5,19 @@ const assert = chai.assert
 const request = require('request')
 // const sinon = require('sinon')
 
-const modules = require('./modules.js')
+const app = require('../app.js')
 const dummyData = require('./dummy-data')
 
-const responseToObject = modules.responseToObject(dummyData.apiResponse)
-const getRequestedOptions = modules.getRequestedOptions
-const requestBody = modules.requestBody
-const convertJsonToCsv = modules.convertJSonToCsv
-const writeData = modules.writeData
-const main = modules.main
+const responseToObject = app.responseToObject(dummyData.apiResponse)
+const getRequestedOptions = app.getRequestedOptions
+const requestBody = app.requestBody
+const convertJsonToCsv = app.convertJSonToCsv
+const writeData = app.writeData
+const main = app.main
 
 describe('downloadGitIssues', function () {
   describe('Get URL and Number', function () {
-    const getUrlAndNumberObject = modules.getUrlAndNumber(dummyData.nextPageLink)
+    const getUrlAndNumberObject = app.getUrlAndNumber(dummyData.nextPageLink)
 
     it('should return url', function () {
       assert.equal(getUrlAndNumberObject.url, 'https://api.github.com/repositories/90146723/issues?per_page=10&state=all&page=2')
