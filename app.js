@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 const fs = require('fs')
 const request = require('request')
 const _ = require('lodash')
@@ -7,27 +5,23 @@ const moment = require('moment')
 const read = require('read')
 const chalk = require('chalk')
 const argv = require('yargs')
-  .usage('Usage: $0 --username [username] --password [password] --repository [URL]')
-  .demandOption(['repository'])
-  .default('fileName', 'all_issues.csv')
-  .help('h')
-  .alias('h', 'help')
-  .describe('fileName', 'Name of output file')
+  .usage('Usage: git-issues-downloader [options] URL')
+  .help('help')
+  .alias('help', 'h')
   .version()
-  .alias('version', 'ver')
+  .alias('version', 'v')
+  .default('filename', 'all_issues.csv')
+  .describe('filename', 'Name of output file')
+  .describe('username', 'Your username on github')
+  .describe('password', 'Your password on github')
+  .alias('filename', 'f')
   .argv
 
-const outputFileName = argv.fileName
+const outputFileName = argv.filename
 
-const issuesPerPage = 100
-const repoUserName = argv.repository.slice(19, argv.repository.indexOf('/', 19))
-const repoUrl = (argv.repository.slice(20 + repoUserName.length, argv.repository.lastIndexOf('/'))) ? argv.repository.slice(20 + repoUserName.length, argv.repository.lastIndexOf('/')) : argv.repository.slice(20 + repoUserName.length)
+//callback function for getting input from prompt
 
-const startUrl = `https://api.github.com/repos/${repoUserName}/${repoUrl}/issues?per_page=${issuesPerPage}&state=all&page=1`
-
-// callback function for getting input from prompt
-
-function getAuth (auth, silent, callback) {
+getAuth = function (auth, silent, callback) {
   read({prompt: `${auth}: `, silent: silent}, function (er, password) {
     callback(password)
   })
@@ -35,7 +29,7 @@ function getAuth (auth, silent, callback) {
 
 // callback function for getting requested options
 
-function getRequestedOptions (username, password, callback) {
+exports.getRequestedOptions = function (username, password, callback) {
   const requestOptions = {
     headers: {
       'User-Agent': 'request'
@@ -82,9 +76,9 @@ function getRequestedOptions (username, password, callback) {
 
 // main function for running program
 
-function main (data, url, requestedOptions) {
-  requestBody(url, requestedOptions, (error, response, body) => {
-    const linkObject = responseToObject(response.headers)
+exports.main = function (data, url, requestedOptions) {
+  this.requestBody(url, requestedOptions, (error, response, body) => {
+    const linkObject = this.responseToObject(response.headers)
 
     // take body, parse it and add it to data
 
@@ -93,18 +87,20 @@ function main (data, url, requestedOptions) {
     if (linkObject.nextPage) {
       console.log(chalk.green(`Successfully requested ${linkObject.nextPage.number - 1}. page of ${linkObject.lastPage.number}`))
 
-      main(data, linkObject.nextPage.url, requestedOptions)
+      this.main(data, linkObject.nextPage.url, requestedOptions)
     } else {
       console.log(chalk.green('Successfully requested last page'))
 
-      writeData(convertJSonToCsv(error, data), outputFileName)
+      const csvData = this.convertJSonToCsv(data)
+
+      this.writeData(csvData, outputFileName)
     }
   })
 }
 
 // get page url and page number from link
 
-function getUrlAndNumber (link) {
+exports.getUrlAndNumber = function (link) {
   return {
     url: link.slice(link.indexOf('<') + 1, link.indexOf('>')),
     number: link.slice(link.indexOf('page', link.indexOf('state')) + 5, link.indexOf('>'))
@@ -113,17 +109,17 @@ function getUrlAndNumber (link) {
 
 // create and return links info (page url and page number for all 4 links in response.headers.link) from whole response
 
-function responseToObject (response) {
+exports.responseToObject = function (response) {
   const rawLink = response.link
 
   if (rawLink && rawLink.includes('next')) {
     const links = rawLink.split(',')
 
     return {
-      nextPage: (links[0]) ? getUrlAndNumber(links[0]) : false,
-      lastPage: (links[1]) ? getUrlAndNumber(links[1]) : false,
-      firstPage: (links[2]) ? getUrlAndNumber(links[2]) : false,
-      prevPage: (links[3]) ? getUrlAndNumber(links[3]) : false
+      nextPage: (links[0]) ? this.getUrlAndNumber(links[0]) : false,
+      lastPage: (links[1]) ? this.getUrlAndNumber(links[1]) : false,
+      firstPage: (links[2]) ? this.getUrlAndNumber(links[2]) : false,
+      prevPage: (links[3]) ? this.getUrlAndNumber(links[3]) : false
     }
   }
   return false
@@ -131,7 +127,7 @@ function responseToObject (response) {
 
 // use url and request api
 
-function requestBody (url, requestedOptions, callback) {
+exports.requestBody = function (url, requestedOptions, callback) {
   console.log('Requesting API...')
   request(url, requestedOptions, function (err, response, body) {
     const JSObject = JSON.parse(body)
@@ -157,8 +153,7 @@ function requestBody (url, requestedOptions, callback) {
 
 // take JSON data, convert them into CSV format and return them
 
-function convertJSonToCsv (err, jsData) {
-  if (err) throw err
+exports.convertJSonToCsv = function (jsData) {
 
   console.log('\nConverting issues...')
 
@@ -176,7 +171,7 @@ function convertJSonToCsv (err, jsData) {
 
 // create a new file and write converted data on him
 
-function writeData (data, outputFileName) {
+exports.writeData = function (data, outputFileName) {
   console.log('\nWriting data to csv file')
   fs.writeFile(outputFileName, data, (err) => {
     if (err) throw err
@@ -185,7 +180,28 @@ function writeData (data, outputFileName) {
   })
 }
 
-// run main function
-getRequestedOptions(argv.username, argv.password, (requestedOptions) => {
-  main([], startUrl, requestedOptions)
-})
+//execute main function with requested options and condition for URL input
+
+exports.execute = function (argvRepository) {
+  if (argvRepository) {
+    const issuesPerPage = 100
+    const repoUserName = argvRepository.slice(19, argvRepository.indexOf('/', 19))
+    const repoUrl = (argvRepository.slice(20 + repoUserName.length, argvRepository.lastIndexOf('/'))) ? argvRepository.slice(20 + repoUserName.length, argvRepository.lastIndexOf('/')) : argvRepository.slice(20 + repoUserName.length)
+
+    const startUrl = `https://api.github.com/repos/${repoUserName}/${repoUrl}/issues?per_page=${issuesPerPage}&state=all&page=1`
+
+    this.getRequestedOptions(argv.username, argv.password, (requestedOptions) => {
+      this.main([], startUrl, requestedOptions)
+    })
+
+  }
+  else {
+    console.log('Usage: git-issues-downloader [options] URL')
+  }
+
+}
+
+const argvRepository = argv._[argv._.length - 1]
+
+this.execute(argvRepository)
+
