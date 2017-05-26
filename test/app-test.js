@@ -36,7 +36,7 @@ describe('downloadGitIssues', function () {
 
   describe('getRequestedOptions', function () {
     it('should return object with username and password', function () {
-      getRequestedOptions('username', 'password',dummyData.nextPageLink, (done) => {
+      getRequestedOptions('username', 'password', dummyData.nextPageLink, (done) => {
         expect(done).to.deep.equal(dummyData.requestOptions)
       })
     })
@@ -55,5 +55,43 @@ describe('downloadGitIssues', function () {
       expect(result).to.deep.equal(dummyData.issuesResult20)
     })
   })
+  describe('requestedBody = suggested output', function () {
+    before(function () {
+      sinon
+        .stub(request, 'get')
+        .yields(null, null, JSON.stringify(dummyData.testIssue))
+    })
+
+    after(function () {
+      request.get.restore()
+    })
+
+    it('should be called with requested options', function () {
+      requestBody('', (error, response, body) => {
+        expect(body).not.be.empty
+      })
+    })
+  })
+  describe('requestedBody = bad url', function () {
+    before(function () {
+      sinon
+        .stub(request, 'get')
+        .yields(null, null, JSON.stringify(dummyData.bodyForBadUrl))
+    })
+
+    after(function () {
+      request.get.restore()
+    })
+
+    it('should invoke error message for bad URL', function () {
+      requestBody('', (error, response, body) => {
+      })
+    })
+  })
+  describe('writeData', function () {
+    it('should create file with data', function () {
+
+      })
+    })
 
 })

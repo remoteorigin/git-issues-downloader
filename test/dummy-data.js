@@ -1,7 +1,8 @@
 module.exports = {
   nextPageLink: '<https://api.github.com/repositories/90146723/issues?per_page=10&state=all&page=2>',
 
-  apiResponse: { server: 'GitHub.com',
+  apiResponse: {
+    server: 'GitHub.com',
     date: 'Thu, 25 May 2017 15:07:19 GMT',
     'content-type': 'application/json; charset=utf-8',
     'content-length': '19341',
@@ -23,9 +24,10 @@ module.exports = {
     'x-frame-options': 'deny',
     'x-xss-protection': '1; mode=block',
     'x-served-by': '9000e9eef7bb1e89f22030c676da140e',
-    'x-github-request-id': 'D3E0:15878:8BC03BB:A66CB9F:5926F327'},
+    'x-github-request-id': 'D3E0:15878:8BC03BB:A66CB9F:5926F327'
+  },
 
-  requestOptions : {
+  requestOptions: {
     headers: {
       'User-Agent': 'request'
     },
@@ -124,6 +126,58 @@ module.exports = {
     updated_at: '2017-05-19T16:36:18Z',
     closed_at: null,
     body: ''
-  }]
+  }],
+
+  testIssue: [{
+    'url': 'https://api.github.com/repos/pavelbinar/ro_convert-github-issues-to-csv/issues/1',
+    'repository_url': 'https://api.github.com/repos/pavelbinar/ro_convert-github-issues-to-csv',
+    'labels_url': 'https://api.github.com/repos/pavelbinar/ro_convert-github-issues-to-csv/issues/1/labels{/name}',
+    'comments_url': 'https://api.github.com/repos/pavelbinar/ro_convert-github-issues-to-csv/issues/1/comments',
+    'events_url': 'https://api.github.com/repos/pavelbinar/ro_convert-github-issues-to-csv/issues/1/events',
+    'html_url': 'https://github.com/pavelbinar/ro_convert-github-issues-to-csv/issues/1',
+    'id': 226540196,
+    'number': 1,
+    'title': 'issue one',
+    'user': {
+      'login': 'pavelbinar',
+      'id': 1060032,
+      'avatar_url': 'https://avatars0.githubusercontent.com/u/1060032?v=3',
+      'gravatar_id': '',
+      'url': 'https://api.github.com/users/pavelbinar',
+      'html_url': 'https://github.com/pavelbinar',
+      'followers_url': 'https://api.github.com/users/pavelbinar/followers',
+      'following_url': 'https://api.github.com/users/pavelbinar/following{/other_user}',
+      'gists_url': 'https://api.github.com/users/pavelbinar/gists{/gist_id}',
+      'starred_url': 'https://api.github.com/users/pavelbinar/starred{/owner}{/repo}',
+      'subscriptions_url': 'https://api.github.com/users/pavelbinar/subscriptions',
+      'organizations_url': 'https://api.github.com/users/pavelbinar/orgs',
+      'repos_url': 'https://api.github.com/users/pavelbinar/repos',
+      'events_url': 'https://api.github.com/users/pavelbinar/events{/privacy}',
+      'received_events_url': 'https://api.github.com/users/pavelbinar/received_events',
+      'type': 'User',
+      'site_admin': false
+    },
+    'labels': [{
+      'id': 597088492,
+      'url': 'https://api.github.com/repos/pavelbinar/ro_convert-github-issues-to-csv/labels/enhancement',
+      'name': 'enhancement',
+      'color': '84b6eb',
+      'default': true
+    }],
+    'state': 'open',
+    'locked': false,
+    'assignee': null,
+    'assignees': [],
+    'milestone': null,
+    'comments': 0,
+    'created_at': '2017-05-05T11:02:28Z',
+    'updated_at': '2017-05-05T11:02:48Z',
+    'closed_at': null,
+    'body': ''
+  }],
+
+  bodyForBadUrl: {'message': 'Not Found', 'documentation_url': 'https://developer.github.com/v3'},
+
+  bodyForBadCredentials: '{"message":"Not Found","documentation_url":"https://developer.github.com/v3"}'
 
 }
