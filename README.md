@@ -14,9 +14,7 @@
 
 ### Install app globally
 
-    git clone git@github.com:remoteorigin/git-issues-downloader.git
-    cd git-issues-downloader
-    npm install -g .
+    npm install -g git-issues-downloader
 
 ### Running the app
 
