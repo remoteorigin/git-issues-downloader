@@ -29,5 +29,18 @@
   },
   "description": "Command line application allowing you to download all issues in the CSV format from the public or private repository",
   "repository": "git@github.com:remoteorigin/git-issues-downloader.git",
-  "author": "Pavel Binar <pavel@remoteorigin.co>"
+  "author": "Pavel Binar <pavel@remoteorigin.co> (http://remoteorigin.co)",
+  "bugs:": {
+    "url": "https://github.com/remoteorigin/git-issues-downloader/issues"
+  },
+  "homepage": "https://github.com/remoteorigin/git-issues-downloader",
+  "keywords": [
+    "git",
+    "github",
+    "issues",
+    "tickets",
+    "download",
+    "downloader",
+    "csv"
+  ]
 }

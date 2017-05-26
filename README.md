@@ -8,6 +8,18 @@
     cd git-issues-downloader
     yarn install
 
-## Running Project
+## Run Project
 
-    node app.js
+    yarn start
+
+## Tests
+
+All tests are are written in [Mocha](https://mochajs.org/) and stored in the `test` folder.
+
+    yarn run test
+
+## Lintining
+
+Using [Standard](https://github.com/feross/standard) JavaScript linter & automatic code fixer.
+
+    yarn run lint
