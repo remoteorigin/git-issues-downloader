@@ -91,7 +91,6 @@ describe('downloadGitIssues', function () {
   describe('writeData', function () {
     it('should create file with data', function () {
 
-      })
     })
-
+  })
 })

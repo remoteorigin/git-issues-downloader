@@ -1,4 +1,4 @@
-#!/usr/bin/env node 
+#!/usr/bin/env node
 
 const fs = require('fs')
 const request = require('request')
@@ -22,7 +22,7 @@ const argv = require('yargs')
 
 const outputFileName = argv.filename
 
-//callback function for getting input from prompt
+// callback function for getting input from prompt
 
 getAuth = function (auth, silent, callback) {
   read({prompt: `${auth}: `, silent: silent}, function (er, password) {
@@ -163,7 +163,6 @@ exports.requestBody = function (requestedOptions, callback) {
 // take JSON data, convert them into CSV format and return them
 
 exports.convertJSonToCsv = function (jsData) {
-
   const csvData = jsData.map(object => {
     const date = moment(object.created_at).format('L')
     const labels = object.labels
@@ -185,7 +184,7 @@ exports.writeData = function (data, outputFileName) {
   })
 }
 
-//execute main function with requested options and condition for URL input
+// execute main function with requested options and condition for URL input
 
 exports.execute = function (argvRepository) {
   if (argvRepository) {
@@ -198,15 +197,11 @@ exports.execute = function (argvRepository) {
     this.getRequestedOptions(argv.username, argv.password, startUrl, (requestedOptions) => {
       this.main([], requestedOptions)
     })
-
-  }
-  else {
+  } else {
     console.log('Usage: git-issues-downloader [options] URL')
   }
-
 }
 
 const argvRepository = argv._[argv._.length - 1]
 
 this.execute(argvRepository)
-
