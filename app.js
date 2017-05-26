@@ -4,6 +4,7 @@ const _ = require('lodash')
 const moment = require('moment')
 const read = require('read')
 const chalk = require('chalk')
+const sinon = require('sinon')
 const argv = require('yargs')
   .usage('Usage: git-issues-downloader [options] URL')
   .help('help')
@@ -29,16 +30,19 @@ getAuth = function (auth, silent, callback) {
 
 // callback function for getting requested options
 
-exports.getRequestedOptions = function (username, password, callback) {
+exports.getRequestedOptions = function (username, password, url, callback) {
   const requestOptions = {
     headers: {
       'User-Agent': 'request'
     },
+    url: '',
     auth: {
       'user': '',
       'pass': ''
     }
   }
+
+  requestOptions.url = url
 
   if (username && password) {
     requestOptions.auth.user = username
@@ -76,8 +80,8 @@ exports.getRequestedOptions = function (username, password, callback) {
 
 // main function for running program
 
-exports.main = function (data, url, requestedOptions) {
-  this.requestBody(url, requestedOptions, (error, response, body) => {
+exports.main = function (data, requestedOptions) {
+  this.requestBody(requestedOptions, (error, response, body) => {
     const linkObject = this.responseToObject(response.headers)
 
     // take body, parse it and add it to data
@@ -87,7 +91,8 @@ exports.main = function (data, url, requestedOptions) {
     if (linkObject.nextPage) {
       console.log(chalk.green(`Successfully requested ${linkObject.nextPage.number - 1}. page of ${linkObject.lastPage.number}`))
 
-      this.main(data, linkObject.nextPage.url, requestedOptions)
+      requestedOptions.url = linkObject.nextPage.url
+      this.main(data, requestedOptions)
     } else {
       console.log(chalk.green('Successfully requested last page'))
 
@@ -107,7 +112,7 @@ exports.getUrlAndNumber = function (link) {
   }
 }
 
-// create and return links info (page url and page number for all 4 links in response.headers.link) from whole response
+// create and return links info (page url and page number for all 4 possible links in response.headers.link) from whole response.hearders
 
 exports.responseToObject = function (response) {
   const rawLink = response.link
@@ -127,9 +132,9 @@ exports.responseToObject = function (response) {
 
 // use url and request api
 
-exports.requestBody = function (url, requestedOptions, callback) {
+exports.requestBody = function (requestedOptions, callback) {
   console.log('Requesting API...')
-  request(url, requestedOptions, function (err, response, body) {
+  request(requestedOptions, function (err, response, body) {
     const JSObject = JSON.parse(body)
 
     if (!JSObject.length) {
@@ -190,8 +195,8 @@ exports.execute = function (argvRepository) {
 
     const startUrl = `https://api.github.com/repos/${repoUserName}/${repoUrl}/issues?per_page=${issuesPerPage}&state=all&page=1`
 
-    this.getRequestedOptions(argv.username, argv.password, (requestedOptions) => {
-      this.main([], startUrl, requestedOptions)
+    this.getRequestedOptions(argv.username, argv.password, startUrl, (requestedOptions) => {
+      this.main([], requestedOptions)
     })
 
   }
