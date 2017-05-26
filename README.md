@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/remoteorigin/git-issues-downloader.svg?branch=master)](https://travis-ci.org/remoteorigin/git-issues-downloader)
+
 # Git Issues Downloader
 
 > Command line application allowing you to download all issues in the CSV format from the public or private repository
