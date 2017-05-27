@@ -1,9 +1,10 @@
-[![Build Status](https://travis-ci.org/remoteorigin/git-issues-downloader.svg?branch=master)](https://travis-ci.org/remoteorigin/git-issues-downloader)
-[![codecov](https://codecov.io/gh/remoteorigin/git-issues-downloader/branch/master/graph/badge.svg)](https://codecov.io/gh/remoteorigin/git-issues-downloader)
-
 # Git Issues Downloader
 
-> Command line application allowing you to download all issues in the CSV format from the public or private repository
+Command line application allowing you to download all issues in the CSV format from the public or private repository
+
+[![Build Status](https://travis-ci.org/remoteorigin/git-issues-downloader.svg?branch=master)](https://travis-ci.org/remoteorigin/git-issues-downloader)
+[![codecov](https://codecov.io/gh/remoteorigin/git-issues-downloader/branch/master/graph/badge.svg)](https://codecov.io/gh/remoteorigin/git-issues-downloader)
+[![npm version](https://badge.fury.io/js/git-issues-downloader.svg)](https://badge.fury.io/js/git-issues-downloader)
 
 ## Requirements
 
