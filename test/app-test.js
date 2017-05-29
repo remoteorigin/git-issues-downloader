@@ -86,6 +86,22 @@ describe('downloadGitIssues', function () {
       })
     })
   })
+  describe('requestedBody (Bad Credentials)', function () {
+    before(function () {
+      sinon
+        .stub(request, 'get')
+        .yields(null, null, JSON.stringify(dummyData.bodyForBadCredentials))
+    })
+
+    after(function () {
+      request.get.restore()
+    })
+
+    it('invoke error message for Bad Credentials', function () {
+      app.requestBody('', (error, response, body) => {
+      })
+    })
+  })
   describe('main', function () {
     before(function () {
       sinon
