@@ -10,11 +10,10 @@ const dummyData = require('./dummy-data')
 
 const getRequestedOptions = app.getRequestedOptions
 const convertJsonToCsv = app.convertJSonToCsv
-const writeData = app.writeData
 const main = app.main
 
 describe('downloadGitIssues', function () {
-  process.env.NODE_ENV = 'test';
+  process.env.NODE_ENV = 'test'
   describe('Get URL and Number', function () {
     const getUrlAndNumberObject = app.getUrlAndNumber(dummyData.nextPageLink)
 
@@ -104,7 +103,7 @@ describe('downloadGitIssues', function () {
 
       main([], dummyData.requestedOptions)
 
-      assert(main.calledOnce);
+      assert(main.calledOnce)
     })
 
   })

@@ -100,12 +100,10 @@ const main = exports.main = function (data, requestedOptions) {
     data = _.concat(data, body)
 
     if (linkObject.nextPage) {
-      console.log('test')
       logExceptOnTest(chalk.green(`Successfully requested ${linkObject.nextPage.number - 1}. page of ${linkObject.lastPage.number}`))
       requestedOptions.url = linkObject.nextPage.url
       main(data, requestedOptions)
     } else {
-      console.log('test2')
       logExceptOnTest(chalk.green('Successfully requested last page'))
 
       logExceptOnTest('\nConverting issues...')
@@ -197,7 +195,7 @@ const execute = exports.execute = function (argvRepository) {
 
     const startUrl = `https://api.github.com/repos/${repoUserName}/${repoUrl}/issues?per_page=${issuesPerPage}&state=all&page=1`
 
-    this.getRequestedOptions(argv.username, argv.password, startUrl, (requestedOptions) => {
+    getRequestedOptions(argv.username, argv.password, startUrl, (requestedOptions) => {
       main([], requestedOptions)
     })
   } else {
