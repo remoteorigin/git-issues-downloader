@@ -8,14 +8,13 @@ const sinon = require('sinon')
 const app = require('../app.js')
 const dummyData = require('./dummy-data')
 
-const responseToObject = app.responseToObject(dummyData.apiResponse)
 const getRequestedOptions = app.getRequestedOptions
-const requestBody = app.requestBody
 const convertJsonToCsv = app.convertJSonToCsv
 const writeData = app.writeData
 const main = app.main
 
 describe('downloadGitIssues', function () {
+  process.env.NODE_ENV = 'test';
   describe('Get URL and Number', function () {
     const getUrlAndNumberObject = app.getUrlAndNumber(dummyData.nextPageLink)
 
@@ -30,7 +29,7 @@ describe('downloadGitIssues', function () {
 
   describe('Response To Object', function () {
     it('should return url of next page', function () {
-      assert.equal(responseToObject.nextPage.url, 'https://api.github.com/repositories/90146723/issues?per_page=10&state=all&page=2')
+      assert.equal(app.responseToObject(dummyData.apiResponse).nextPage.url, 'https://api.github.com/repositories/90146723/issues?per_page=10&state=all&page=2')
     })
   })
 
@@ -67,7 +66,7 @@ describe('downloadGitIssues', function () {
     })
 
     it('should be called with requested options', function () {
-      requestBody('', (error, response, body) => {
+      app.requestBody('', (error, response, body) => {
         expect(body).not.be.empty
       })
     })
@@ -84,13 +83,30 @@ describe('downloadGitIssues', function () {
     })
 
     it('should invoke error message for bad URL', function () {
-      requestBody('', (error, response, body) => {
+      app.requestBody('', (error, response, body) => {
       })
     })
   })
-  describe('writeData', function () {
-    it('should create file with data', function () {
+  describe('main', function () {
+    before(function () {
+      sinon
+        .stub(request, 'get')
+        .yields(null, dummyData.response2Page, JSON.stringify(dummyData.testIssues))
 
     })
+
+    after(function () {
+      request.get.restore()
+    })
+
+    it('should successful execute all function', function () {
+      const main = sinon.spy()
+
+      main([], dummyData.requestedOptions)
+
+      assert(main.calledOnce);
+    })
+
   })
+
 })
