@@ -55,7 +55,7 @@ module.exports = {
 
   issuesResult21: `"21"; "issue message"; "https://github.com/pavelbinar/ro_convert-github-issues-to-csv/issues/21"; ""; "open"; "05/23/2017"
 `,
-  issuesResult20: `"20"; "issue twenty"; "https://github.com/pavelbinar/ro_convert-github-issues-to-csv/issues/20"; ""; "open"; "05/09/2017"
+  issuesResult20: `"20"; "issue twenty"; "https://github.com/pavelbinar/ro_convert-github-issues-to-csv/issues/20"; "bug"; "open"; "05/09/2017"
 `,
 
   JSONdata21: [{
@@ -128,7 +128,11 @@ module.exports = {
       type: 'User',
       site_admin: false
     },
-    labels: [],
+    labels: [{ id: 597088490,
+      url: 'https://api.github.com/repos/pavelbinar/ro_convert-github-issues-to-csv/labels/bug',
+      name: 'bug',
+      color: 'ee0701',
+      default: true } ],
     state: 'open',
     locked: false,
     assignee: null,
