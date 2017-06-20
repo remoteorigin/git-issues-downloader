@@ -30,10 +30,43 @@ const outputFileName = argv.filename
 
 // callback function for getting input from prompt
 
-getAuth = function (auth, silent, callback) {
+const getUserInput = function (auth, silent, callback) {
   read({prompt: `${auth}: `, silent: silent}, function (er, password) {
     callback(password)
   })
+}
+
+const getAuthorization = function (callback) {
+  let username = argv.username
+  let password = argv.password
+
+  if (username&&password){
+    callback(username,password)
+  }
+  else if (username&&!password){
+    getUserInput('password', true, (passwordConsoleInput) => {
+      password = passwordConsoleInput
+
+      callback(username,password)
+    })
+  }
+  else if (!username&&password){
+    getUserInput('username', true, (usernameConsoleInput) => {
+      username = usernameConsoleInput
+
+      callback(username,password)
+    })
+  }
+  else if (!username&&!password){
+    getUserInput('username', false, (usernameConsoleInput) => {
+      username = usernameConsoleInput
+      getUserInput('password', true, (passwordConsoleInput) => {
+        password = passwordConsoleInput
+
+        callback(username,password)
+      })
+    })
+  }
 }
 
 // callback function for getting requested options
@@ -51,70 +84,45 @@ const getRequestedOptions = exports.getRequestedOptions = function (username, pa
   }
 
   requestOptions.url = url
-
-  if (username && password) {
-    requestOptions.auth.user = username
-    requestOptions.auth.pass = password
-    callback(requestOptions)
-  } else {
-    if (password) {
-      requestOptions.auth.pass = password
-      getAuth('username', false, (usernameConsoleInput) => {
-        requestOptions.auth.user = usernameConsoleInput
-
-        callback(requestOptions)
-      })
-    } else {
-      if (username) {
-        requestOptions.auth.user = username
-        getAuth('password', true, (passwordConsoleInput) => {
-          requestOptions.auth.pass = passwordConsoleInput
-
-          callback(requestOptions)
-        })
-      } else {
-        getAuth('username', false, (usernameConsoleInput) => {
-          requestOptions.auth.user = usernameConsoleInput
-          getAuth('password', true, (passwordConsoleInput) => {
-            requestOptions.auth.pass = passwordConsoleInput
-
-            callback(requestOptions)
-          })
-        })
-      }
-    }
-  }
+  callback(requestOptions)
 }
 
 // main function for running program
 
 const main = exports.main = function (data, requestedOptions) {
-  logExceptOnTest('Requesting API...')
-  requestBody(requestedOptions, (error, response, body) => {
-    linkObject = responseToObject(response.headers)
+  console.log('main')
+  getAuthorization((username, password) => {
+    requestedOptions.auth.username = username
+    requestedOptions.auth.password = password
+    logExceptOnTest('Requesting API...')
+    requestBody(requestedOptions, (error, response, body) => {
+      let linkObject = responseToObject(response.headers)
 
-    // take body, parse it and add it to data
+      // take body, parse it and add it to data
 
-    data = _.concat(data, body)
+      data = _.concat(data, body)
 
-    if (linkObject.nextPage) {
-      logExceptOnTest(chalk.green(`Successfully requested ${linkObject.nextPage.number - 1}. page of ${linkObject.lastPage.number}`))
-      requestedOptions.url = linkObject.nextPage.url
-      main(data, requestedOptions)
-    } else {
-      logExceptOnTest(chalk.green('Successfully requested last page'))
+      if (linkObject.nextPage) {
+        logExceptOnTest(chalk.green(`Successfully requested ${linkObject.nextPage.number - 1}. page of ${linkObject.lastPage.number}`))
+        requestedOptions.url = linkObject.nextPage.url
+        main(data, requestedOptions)
+      } else {
+        logExceptOnTest(chalk.green('Successfully requested last page'))
 
-      logExceptOnTest('\nConverting issues...')
-      const csvData = convertJSonToCsv(data)
-      logExceptOnTest(chalk.green(`\nSuccessfully converted ${data.length} issues!`))
+        logExceptOnTest('\nConverting issues...')
+        const csvData = convertJSonToCsv(data)
+        cloneIssues(data, requestedOptions)
+        console.log(data)
+        logExceptOnTest(chalk.green(`\nSuccessfully converted ${data.length} issues!`))
 
-      logExceptOnTest('\nWriting data to csv file')
-      fs.writeFile(outputFileName, csvData, (err) => {
-        if (err) throw err
+        logExceptOnTest('\nWriting data to csv file')
+        fs.writeFile(outputFileName, csvData, (err) => {
+          if (err) throw err
 
-        logExceptOnTest(chalk.yellow(`\nIssues was downloaded, converted and saved to ${outputFileName}`))
-      })
-    }
+          logExceptOnTest(chalk.yellow(`\nIssues was downloaded, converted and saved to ${outputFileName}`))
+        })
+      }
+    })
   })
 }
 
@@ -143,6 +151,24 @@ const responseToObject = exports.responseToObject = function (response) {
     }
   }
   return false
+}
+
+const cloneIssues = function (allIssues,requestedOptions) {
+  _.forEach(allIssues, (issue) => {
+    postIssue(issue,requestedOptions)
+  })
+}
+
+const postIssue = function (issue,requestedOptions) {
+  // delete issue.url
+  // delete issue.html_url
+  // delete issue.followers_url
+  // delete issue.following_url
+  const toDeleteArray = ['url','repository_url','labels_url','comments_url','events_url','html_url','id','number','user','comments','created_at','updated_at','closed_at']
+  _.forEach(toDeleteArray, (toDelete) => {
+    delete issue[toDelete]
+  })
+  request.post(requestedOptions, issue)
 }
 
 // use url and request api
