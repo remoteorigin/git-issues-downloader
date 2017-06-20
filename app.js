@@ -87,6 +87,21 @@ const getRequestedOptions = exports.getRequestedOptions = function (username, pa
   callback(requestOptions)
 }
 
+const cloneOptions = {
+  headers: {
+    'User-Agent': 'request'
+  },
+  url: 'https://github.com/jakubzika/ZFTP/issues',
+  auth: {
+    'user': '',
+    'pass': ''
+  }
+}
+
+const testData = {
+  title: "Found a bug test",
+}
+
 // main function for running program
 
 const main = exports.main = function (data, requestedOptions) {
@@ -110,9 +125,12 @@ const main = exports.main = function (data, requestedOptions) {
         logExceptOnTest(chalk.green('Successfully requested last page'))
 
         logExceptOnTest('\nConverting issues...')
-        const csvData = convertJSonToCsv(data)
-        cloneIssues(data, requestedOptions)
+        //const csvData = convertJSonToCsv(data)
         console.log(data)
+        cloneOptions.auth.username=username
+        cloneOptions.auth.password=password
+        let dataJson = JSON.stringify(testData)
+        postRequest(dataJson, cloneOptions)
         logExceptOnTest(chalk.green(`\nSuccessfully converted ${data.length} issues!`))
 
         logExceptOnTest('\nWriting data to csv file')
@@ -159,7 +177,7 @@ const cloneIssues = function (allIssues,requestedOptions) {
   })
 }
 
-const postIssue = function (issue,requestedOptions) {
+const postIssue = function (issue,cloneIssues) {
   // delete issue.url
   // delete issue.html_url
   // delete issue.followers_url
@@ -168,9 +186,29 @@ const postIssue = function (issue,requestedOptions) {
   _.forEach(toDeleteArray, (toDelete) => {
     delete issue[toDelete]
   })
-  request.post(requestedOptions, issue)
+  request.post(cloneIssues, issue)
 }
 
+const postRequest = function () {
+  const testX = {
+    headers: {
+      'User-Agent': 'jakubzika',
+      'Content-Type': 'application/json'
+    },
+    url: 'https://api.github.com/repos/jakubzika/ZFTP/issues',
+    auth: {
+      'user': 'jakubzika',
+      'pass': '83bb4bc2e59e3f684911913fff54151129cb8827'
+    }
+  }
+  console.log(JSON.stringify(testData))
+  console.log(testX)
+  request.post(testX, JSON.stringify(testData), (err, response, body) => {
+    console.log(err)
+    console.log(body)
+  })
+}
+postRequest()
 // use url and request api
 
 const requestBody = exports.requestBody = function (requestedOptions, callback) {
@@ -233,4 +271,4 @@ function logExceptOnTest (string) {
 
 const argvRepository = argv._[argv._.length - 1]
 
-this.execute(argvRepository)
+// this.execute(argvRepository)
