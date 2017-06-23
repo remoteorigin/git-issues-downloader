@@ -23,6 +23,7 @@ const argv = require('yargs')
   .describe('username', 'Your GitHub username')
   .describe('password', 'Your GitHub password')
   .describe('filename', 'Name of the output file')
+  .describe('clone', 'Url of repository where you want to clone your issues')
   .default('filename', 'all_issues.csv')
   .argv
 
@@ -40,30 +41,30 @@ const getAuthorization = function (callback) {
   let username = argv.username
   let password = argv.password
 
-  if (username&&password){
-    callback(username,password)
+  if (username && password) {
+    callback(username, password)
   }
-  else if (username&&!password){
+  else if (username && !password) {
     getUserInput('password', true, (passwordConsoleInput) => {
       password = passwordConsoleInput
 
-      callback(username,password)
+      callback(username, password)
     })
   }
-  else if (!username&&password){
+  else if (!username && password) {
     getUserInput('username', true, (usernameConsoleInput) => {
       username = usernameConsoleInput
 
-      callback(username,password)
+      callback(username, password)
     })
   }
-  else if (!username&&!password){
+  else if (!username && !password) {
     getUserInput('username', false, (usernameConsoleInput) => {
       username = usernameConsoleInput
       getUserInput('password', true, (passwordConsoleInput) => {
         password = passwordConsoleInput
 
-        callback(username,password)
+        callback(username, password)
       })
     })
   }
@@ -74,32 +75,26 @@ const getAuthorization = function (callback) {
 const getRequestedOptions = exports.getRequestedOptions = function (username, password, url, callback) {
   const requestOptions = {
     headers: {
-      'User-Agent': 'request'
+      'User-Agent': 'lukasvesely98',
+      'Content-Type': 'application/json'
     },
     url: '',
     auth: {
       'user': '',
       'pass': ''
-    }
+    },
+    body: JSON.stringify({title: 'Found a bug test',})
   }
 
   requestOptions.url = url
   callback(requestOptions)
 }
 
-const cloneOptions = {
-  headers: {
-    'User-Agent': 'request'
-  },
-  url: 'https://github.com/jakubzika/ZFTP/issues',
-  auth: {
-    'user': '',
-    'pass': ''
-  }
-}
+const makeAPIUrl = function (url) {
+  const repoUserName = url.slice(19, url.indexOf('/', 19))
+  const repoUrl = (url.slice(20 + repoUserName.length, url.lastIndexOf('/'))) ? url.slice(20 + repoUserName.length, url.lastIndexOf('/')) : url.slice(20 + repoUserName.length)
 
-const testData = {
-  title: "Found a bug test",
+  return `https://api.github.com/repos/${repoUserName}/${repoUrl}`
 }
 
 // main function for running program
@@ -124,21 +119,23 @@ const main = exports.main = function (data, requestedOptions) {
       } else {
         logExceptOnTest(chalk.green('Successfully requested last page'))
 
-        logExceptOnTest('\nConverting issues...')
-        //const csvData = convertJSonToCsv(data)
-        console.log(data)
-        cloneOptions.auth.username=username
-        cloneOptions.auth.password=password
-        let dataJson = JSON.stringify(testData)
-        postRequest(dataJson, cloneOptions)
-        logExceptOnTest(chalk.green(`\nSuccessfully converted ${data.length} issues!`))
+        if (argv.clone) {
+          logExceptOnTest(chalk.green('Cloning Issues'))
+          cloneIssues(data, requestedOptions)
+        }
+        else {
+          logExceptOnTest('\nConverting issues...')
+          const csvData = convertJSonToCsv(data)
 
-        logExceptOnTest('\nWriting data to csv file')
-        fs.writeFile(outputFileName, csvData, (err) => {
-          if (err) throw err
+          logExceptOnTest(chalk.green(`\nSuccessfully converted ${data.length} issues!`))
 
-          logExceptOnTest(chalk.yellow(`\nIssues was downloaded, converted and saved to ${outputFileName}`))
-        })
+          logExceptOnTest('\nWriting data to csv file')
+          fs.writeFile(outputFileName, csvData, (err) => {
+            if (err) throw err
+
+            logExceptOnTest(chalk.yellow(`\nIssues was downloaded, converted and saved to ${outputFileName}`))
+          })
+        }
       }
     })
   })
@@ -171,45 +168,80 @@ const responseToObject = exports.responseToObject = function (response) {
   return false
 }
 
-const cloneIssues = function (allIssues,requestedOptions) {
-  _.forEach(allIssues, (issue) => {
-    postIssue(issue,requestedOptions)
-  })
-}
+const cloneIssues = function (allIssues, requestedOptions) {
 
-const postIssue = function (issue,cloneIssues) {
-  // delete issue.url
-  // delete issue.html_url
-  // delete issue.followers_url
-  // delete issue.following_url
-  const toDeleteArray = ['url','repository_url','labels_url','comments_url','events_url','html_url','id','number','user','comments','created_at','updated_at','closed_at']
-  _.forEach(toDeleteArray, (toDelete) => {
-    delete issue[toDelete]
-  })
-  request.post(cloneIssues, issue)
-}
-
-const postRequest = function () {
-  const testX = {
-    headers: {
-      'User-Agent': 'jakubzika',
-      'Content-Type': 'application/json'
-    },
-    url: 'https://api.github.com/repos/jakubzika/ZFTP/issues',
-    auth: {
-      'user': 'jakubzika',
-      'pass': '83bb4bc2e59e3f684911913fff54151129cb8827'
+  const newIssues = allIssues.map(object => {
+    return {
+      comments_url: object.comments_url,
+      title: object.title,
+      labels: object.labels,
+      body: object.body,
+      milestone: object.milestone,
+      number: object.number
     }
-  }
-  console.log(JSON.stringify(testData))
-  console.log(testX)
-  request.post(testX, JSON.stringify(testData), (err, response, body) => {
-    console.log(err)
-    console.log(body)
+  })
+
+  _.forEach(newIssues, (issue) => {
+
+    requestComments(issue.comments_url, requestedOptions, (error, response, body) => {
+
+      JSONBody = JSON.parse(body)
+
+      JSONBody.reverse()
+
+      if (JSONBody.length) {
+        const comments = JSONBody.map(object => {
+          return {
+            body: object.body
+          }
+
+        })
+
+        postIssue(issue, requestedOptions, (body) => {
+
+          _.forEach(comments, (comment) => {
+
+            postComment(comment, requestedOptions, body.comments_url)
+
+          })
+
+        })
+
+      }
+      else {
+        postIssue(issue, requestedOptions, (body) => {})
+
+      }
+
+    })
+
+  })
+
+}
+
+const postIssue = function (body, requestedOptions, callback) {
+  requestedOptions.url = `${makeAPIUrl(argv.clone)}/issues`
+  requestedOptions.body = JSON.stringify(body)
+
+  request.post(requestedOptions, (err, response, body) => {
+    callback(JSON.parse(body))
   })
 }
-postRequest()
-// use url and request api
+
+const postComment = function (body, requestedOptions, url) {
+  requestedOptions.url = url
+  requestedOptions.body = JSON.stringify(body)
+
+  request.post(requestedOptions, (err, response, body) => {
+  })
+}
+
+const requestComments = function (commentsUrl, requestedOptions, callback) {
+  requestedOptions.url = commentsUrl
+  request.get(requestedOptions, function (err, response, body) {
+    callback(err, response, body)
+  })
+}
 
 const requestBody = exports.requestBody = function (requestedOptions, callback) {
   request.get(requestedOptions, function (err, response, body) {
@@ -250,10 +282,8 @@ const convertJSonToCsv = exports.convertJSonToCsv = function (jsData) {
 const execute = exports.execute = function (argvRepository) {
   if (argvRepository) {
     const issuesPerPage = 100
-    const repoUserName = argvRepository.slice(19, argvRepository.indexOf('/', 19))
-    const repoUrl = (argvRepository.slice(20 + repoUserName.length, argvRepository.lastIndexOf('/'))) ? argvRepository.slice(20 + repoUserName.length, argvRepository.lastIndexOf('/')) : argvRepository.slice(20 + repoUserName.length)
 
-    const startUrl = `https://api.github.com/repos/${repoUserName}/${repoUrl}/issues?per_page=${issuesPerPage}&state=all&page=1`
+    const startUrl = `${makeAPIUrl(argvRepository)}/issues?per_page=${issuesPerPage}&state=all&page=1`
 
     getRequestedOptions(argv.username, argv.password, startUrl, (requestedOptions) => {
       main([], requestedOptions)
@@ -271,4 +301,4 @@ function logExceptOnTest (string) {
 
 const argvRepository = argv._[argv._.length - 1]
 
-// this.execute(argvRepository)
+this.execute(argvRepository)
