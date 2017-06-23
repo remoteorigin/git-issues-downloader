@@ -43,22 +43,19 @@ const getAuthorization = function (callback) {
 
   if (username && password) {
     callback(username, password)
-  }
-  else if (username && !password) {
+  } else if (username && !password) {
     getUserInput('password', true, (passwordConsoleInput) => {
       password = passwordConsoleInput
 
       callback(username, password)
     })
-  }
-  else if (!username && password) {
+  } else if (!username && password) {
     getUserInput('username', true, (usernameConsoleInput) => {
       username = usernameConsoleInput
 
       callback(username, password)
     })
-  }
-  else if (!username && !password) {
+  } else if (!username && !password) {
     getUserInput('username', false, (usernameConsoleInput) => {
       username = usernameConsoleInput
       getUserInput('password', true, (passwordConsoleInput) => {
@@ -83,7 +80,7 @@ const getRequestedOptions = exports.getRequestedOptions = function (username, pa
       'user': '',
       'pass': ''
     },
-    body: JSON.stringify({title: 'Found a bug test',})
+    body: JSON.stringify({title: 'Found a bug test'})
   }
 
   requestOptions.url = url
@@ -122,8 +119,7 @@ const main = exports.main = function (data, requestedOptions) {
         if (argv.clone) {
           logExceptOnTest(chalk.green('Cloning Issues'))
           cloneIssues(data, requestedOptions)
-        }
-        else {
+        } else {
           logExceptOnTest('\nConverting issues...')
           const csvData = convertJSonToCsv(data)
 
@@ -169,7 +165,6 @@ const responseToObject = exports.responseToObject = function (response) {
 }
 
 const cloneIssues = function (allIssues, requestedOptions) {
-
   const newIssues = allIssues.map(object => {
     return {
       comments_url: object.comments_url,
@@ -182,9 +177,7 @@ const cloneIssues = function (allIssues, requestedOptions) {
   })
 
   _.forEach(newIssues, (issue) => {
-
     requestComments(issue.comments_url, requestedOptions, (error, response, body) => {
-
       JSONBody = JSON.parse(body)
 
       JSONBody.reverse()
@@ -194,29 +187,18 @@ const cloneIssues = function (allIssues, requestedOptions) {
           return {
             body: object.body
           }
-
         })
 
         postIssue(issue, requestedOptions, (body) => {
-
           _.forEach(comments, (comment) => {
-
             postComment(comment, requestedOptions, body.comments_url)
-
           })
-
         })
-
-      }
-      else {
+      } else {
         postIssue(issue, requestedOptions, (body) => {})
-
       }
-
     })
-
   })
-
 }
 
 const postIssue = function (body, requestedOptions, callback) {
