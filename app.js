@@ -7,7 +7,7 @@ const moment = require('moment')
 const read = require('read')
 const chalk = require('chalk')
 const argv = require('yargs')
-  .usage('Usage: git-issues-downloader [options] URL \nType git-issues-downloader --help to see a list of all options.')
+  .usage('Usage: git-issues-downloader [options] URL \nType git-issues-downloader --help to see a list of all options. ')
   .help('h')
 
   .version(function () {
@@ -36,6 +36,8 @@ const getUserInput = function (auth, silent, callback) {
     callback(password)
   })
 }
+
+// function for getting username and password
 
 const getAuthorization = function (callback) {
   let username = argv.username
@@ -80,18 +82,36 @@ const getRequestedOptions = exports.getRequestedOptions = function (username, pa
       'user': '',
       'pass': ''
     },
-    body: JSON.stringify({title: 'Found a bug test'})
+    body: JSON.stringify({title: 'Issue'})
   }
 
   requestOptions.url = url
   callback(requestOptions)
 }
 
+// take url a create api url from it
+
 const makeAPIUrl = function (url) {
   const repoUserName = url.slice(19, url.indexOf('/', 19))
   const repoUrl = (url.slice(20 + repoUserName.length, url.lastIndexOf('/'))) ? url.slice(20 + repoUserName.length, url.lastIndexOf('/')) : url.slice(20 + repoUserName.length)
 
   return `https://api.github.com/repos/${repoUserName}/${repoUrl}`
+}
+
+const getData = function (data, requestedOptions, callback) {
+  requestBody(requestedOptions, (error, response, body) => {
+    let linkObject = responseToObject(response.headers)
+
+    data = _.concat(data, body)
+
+    if (linkObject.nextPage) {
+      requestedOptions.url = linkObject.nextPage.url
+      getData(data, requestedOptions, callback)
+
+    } else {
+      callback(data)
+    }
+  })
 }
 
 // main function for running program
@@ -102,36 +122,37 @@ const main = exports.main = function (data, requestedOptions) {
     requestedOptions.auth.username = username
     requestedOptions.auth.password = password
     logExceptOnTest('Requesting API...')
-    requestBody(requestedOptions, (error, response, body) => {
-      let linkObject = responseToObject(response.headers)
+
+    getData(data, requestedOptions, (issues) => {
 
       // take body, parse it and add it to data
 
-      data = _.concat(data, body)
+      // if (linkObject.nextPage) {
+      //   logExceptOnTest(chalk.green(`Successfully requested ${linkObject.nextPage.number - 1}. page of ${linkObject.lastPage.number}`))
+      //   requestedOptions.url = linkObject.nextPage.url
+      //   main(data, requestedOptions)
+      // } else {
+      //   logExceptOnTest(chalk.green('Successfully requested last page'))
 
-      if (linkObject.nextPage) {
-        logExceptOnTest(chalk.green(`Successfully requested ${linkObject.nextPage.number - 1}. page of ${linkObject.lastPage.number}`))
-        requestedOptions.url = linkObject.nextPage.url
-        main(data, requestedOptions)
+      // if clone argument isn't missing clone repository to another repository
+
+      if (argv.clone) {
+        logExceptOnTest(chalk.green('Cloning Issues'))
+        cloneIssues(issues, requestedOptions)
       } else {
-        logExceptOnTest(chalk.green('Successfully requested last page'))
 
-        if (argv.clone) {
-          logExceptOnTest(chalk.green('Cloning Issues'))
-          cloneIssues(data, requestedOptions)
-        } else {
-          logExceptOnTest('\nConverting issues...')
-          const csvData = convertJSonToCsv(data)
+        // else convert data and write them to csv file
+        logExceptOnTest('\nConverting issues...')
+        const csvData = convertJSonToCsv(issues)
 
-          logExceptOnTest(chalk.green(`\nSuccessfully converted ${data.length} issues!`))
+        logExceptOnTest(chalk.green(`\nSuccessfully converted ${issues.length} issues!`))
 
-          logExceptOnTest('\nWriting data to csv file')
-          fs.writeFile(outputFileName, csvData, (err) => {
-            if (err) throw err
+        logExceptOnTest('\nWriting data to csv file')
+        fs.writeFile(outputFileName, csvData, (err) => {
+          if (err) throw err
 
-            logExceptOnTest(chalk.yellow(`\nIssues was downloaded, converted and saved to ${outputFileName}`))
-          })
-        }
+          logExceptOnTest(chalk.yellow(`\nIssues was downloaded, converted and saved to ${outputFileName}`))
+        })
       }
     })
   })
@@ -164,7 +185,10 @@ const responseToObject = exports.responseToObject = function (response) {
   return false
 }
 
+// take all issues, map new object from it and upload them to new repository them using post request
+
 const cloneIssues = function (allIssues, requestedOptions) {
+
   const newIssues = allIssues.map(object => {
     return {
       comments_url: object.comments_url,
@@ -172,43 +196,86 @@ const cloneIssues = function (allIssues, requestedOptions) {
       labels: object.labels,
       body: object.body,
       milestone: object.milestone,
-      number: object.number
+      number: object.number,
+      state: object.state
     }
   })
 
-  _.forEach(newIssues, (issue) => {
+  requestedOptions.url = `${makeAPIUrl(argv.clone)}/issues?per_page=10&state=all&page=1`
+
+  getData([], requestedOptions, (issues) => {
+
+    if (!issues[0]) {
+      for (i = 0; i < newIssues[newIssues.length - 1].number; i++) {
+
+        postIssue(requestedOptions, (body) => {})
+      }
+    }
+    else if (newIssues[newIssues.length - 1].number > issues[0].number) {
+
+      for (i = 0; i < newIssues[newIssues.length - 1].number - issues[0].number; i++) {
+        postIssue(requestedOptions, (body) => {})
+      }
+    }
+  })
+
+  newIssues.reverse()
+
+  _.forEach(newIssues, (issue, index) => {
+
+    requestedOptions.body = JSON.stringify(issue)
+    patchIssue(issue.number, requestedOptions, (issueBody) => {
+
+    })
+
     requestComments(issue.comments_url, requestedOptions, (error, response, body) => {
+
       JSONBody = JSON.parse(body)
 
-      JSONBody.reverse()
-
       if (JSONBody.length) {
+        console.log(JSONBody)
         const comments = JSONBody.map(object => {
           return {
             body: object.body
           }
+
         })
 
-        postIssue(issue, requestedOptions, (body) => {
-          _.forEach(comments, (comment) => {
-            postComment(comment, requestedOptions, body.comments_url)
-          })
-        })
-      } else {
-        postIssue(issue, requestedOptions, (body) => {})
+        console.log(comments)
+
+        // _.forEach(comments, (comment) => {
+        //
+        //   postComment(comment, requestedOptions, issueBody.comments_url)
+        //
+        // })
       }
     })
+
   })
+
 }
 
-const postIssue = function (body, requestedOptions, callback) {
+// post request for posting issue
+
+const postIssue = function (requestedOptions, callback) {
   requestedOptions.url = `${makeAPIUrl(argv.clone)}/issues`
-  requestedOptions.body = JSON.stringify(body)
 
   request.post(requestedOptions, (err, response, body) => {
     callback(JSON.parse(body))
   })
 }
+
+// patch request for change issue
+
+const patchIssue = function (number, requestedOptions, callback) {
+  requestedOptions.url = `${makeAPIUrl(argv.clone)}/issues/${number}`
+
+  request.patch(requestedOptions, (err, response, body) => {
+    callback(JSON.parse(body))
+  })
+}
+
+// post request for posting comment
 
 const postComment = function (body, requestedOptions, url) {
   requestedOptions.url = url
@@ -218,12 +285,16 @@ const postComment = function (body, requestedOptions, url) {
   })
 }
 
+// request for getting all comments from issue
+
 const requestComments = function (commentsUrl, requestedOptions, callback) {
   requestedOptions.url = commentsUrl
   request.get(requestedOptions, function (err, response, body) {
     callback(err, response, body)
   })
 }
+
+//request for getting body with issues and convert it to JSON
 
 const requestBody = exports.requestBody = function (requestedOptions, callback) {
   request.get(requestedOptions, function (err, response, body) {
@@ -240,7 +311,8 @@ const requestBody = exports.requestBody = function (requestedOptions, callback) 
           logExceptOnTest(chalk.red('\nYour username or password is invalid, please check it'))
           break
         default:
-          logExceptOnTest(chalk.red('\nRepository have 0 issues. Nothing to download'))
+          if (!argv.clone) logExceptOnTest(chalk.red('\nRepository have 0 issues. Nothing to download'))
+          else (callback(err, response, JSObject))
       }
     } else {
       callback(err, response, JSObject)
@@ -263,7 +335,7 @@ const convertJSonToCsv = exports.convertJSonToCsv = function (jsData) {
 
 const execute = exports.execute = function (argvRepository) {
   if (argvRepository) {
-    const issuesPerPage = 100
+    const issuesPerPage = 10
 
     const startUrl = `${makeAPIUrl(argvRepository)}/issues?per_page=${issuesPerPage}&state=all&page=1`
 

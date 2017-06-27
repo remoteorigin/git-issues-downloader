@@ -42,13 +42,15 @@ module.exports = {
 
   requestOptions: {
     headers: {
-      'User-Agent': 'request'
-    },
+      "Content-Type": "application/json",
+      "User-Agent": "lukasvesely98"
+            },
     url: '<https://api.github.com/repositories/90146723/issues?per_page=10&state=all&page=2>',
     auth: {
-      'user': 'username',
-      'pass': 'password'
-    }
+      'user': '',
+      'pass': ''
+    },
+    "body": `{\"title\":\"Issue\"}`
   },
 
   startUrl: 'https://api.github.com/repos/pavelbinar/ro_convert-github-issues-to-csv/issues?per_page=100&state=all&page=1',
