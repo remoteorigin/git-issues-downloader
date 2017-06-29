@@ -106,9 +106,14 @@ const main = exports.main = function (data, requestedOptions) {
   getAuthorization((username, password) => {
     requestedOptions.auth.username = username
     requestedOptions.auth.password = password
-    logExceptOnTest('Requesting API...')
+    requestBody(requestedOptions, (error, response, body) => {
+      logExceptOnTest('Requesting API...')
+
+      linkObject = responseToObject(response.headers)
 
       // take body, parse it and add it to data
+
+      data = _.concat(data, body)
 
       if (linkObject.nextPage) {
         logExceptOnTest(chalk.green(`Successfully requested ${linkObject.nextPage.number - 1}. page of ${linkObject.lastPage.number}`))
@@ -118,26 +123,25 @@ const main = exports.main = function (data, requestedOptions) {
         logExceptOnTest(chalk.green('Successfully requested last page'))
 
         // else convert data and write them to csv file
+
         logExceptOnTest('\nConverting issues...')
-        const csvData = convertJSonToCsv(issues)
 
-        logExceptOnTest(chalk.green(`\nSuccessfully converted ${issues.length} issues!`))
-
-      logExceptOnTest('\nConverting issues...')
-
-      console.log(data[0].comments_url)
+        getComments(data,requestedOptions,(data)=>{
 
 
-      //const csvData = convertJSonToCsv(data)
-      logExceptOnTest(chalk.green(`\nSuccessfully converted ${data.length} issues!`))
 
-      logExceptOnTest('\nWriting data to csv file')
-      // fs.writeFile(outputFileName, csvData, (err) => {
-      //   if (err) throw err
-      //
-      //   logExceptOnTest(chalk.yellow(`\nIssues was downloaded, converted and saved to ${outputFileName}`))
-      // })
-    }
+        //const csvData = convertJSonToCsv(data)
+        logExceptOnTest(chalk.green(`\nSuccessfully converted ${data.length} issues!`))
+
+        logExceptOnTest('\nWriting data to csv file')
+        fs.writeFile(outputFileName, JSON.stringify(data, null, 4), (err) => {
+          if (err) throw err
+
+          logExceptOnTest(chalk.yellow(`\nIssues was downloaded, converted and saved to ${outputFileName}`))
+        })
+      })
+      }
+    })
   })
 }
 
@@ -168,19 +172,17 @@ const responseToObject = exports.responseToObject = function (response) {
   return false
 }
 
-      requestComments(issue.comments_url, requestedOptions, (error, response, body) => {
+const getComments = function (data, requestedOptions, callback) {
 
-        JSONBody = JSON.parse(body)
 
-        newIssues[index].comments_url=JSONBody
 
-        if (JSONBody.length) {
-          const comments = JSONBody.map(object => {
-            return {
-              body: object.body
-            }
 
-          })
+  addComments(data,requestedOptions,(data)=>{
+    callback(data)
+  })
+
+}
+
           
 // request for getting all comments from issue
 
@@ -189,6 +191,25 @@ const requestComments = function (commentsUrl, requestedOptions, callback) {
   request.get(requestedOptions, function (err, response, body) {
     callback(err, response, body)
   })
+}
+
+const addComments = function (data,requestedOptions,callback) {
+  _.forEach(data, function (issue) {
+
+    requestComments(issue.comments_url, requestedOptions, (error, response, body) => {
+
+
+      JSONBody = JSON.parse(body)
+
+      issue.comments_url=body
+
+      callback(data)
+
+    })
+
+
+  })
+
 }
 
 //request for getting body with issues and convert it to JSON
