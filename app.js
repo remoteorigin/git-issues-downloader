@@ -6,6 +6,8 @@ const _ = require('lodash')
 const moment = require('moment')
 const read = require('read')
 const chalk = require('chalk')
+const sinon = require('sinon')
+const async = require('async')
 const argv = require('yargs')
   .usage('Usage: git-issues-downloader [options] URL \nType git-issues-downloader --help to see a list of all options. ')
   .help('h')
@@ -226,31 +228,31 @@ const cloneIssues = function (allIssues, requestedOptions) {
     requestedOptions.body = JSON.stringify(issue)
     patchIssue(issue.number, requestedOptions, (issueBody) => {
 
+      requestComments(issue.comments_url, requestedOptions, (error, response, body) => {
+
+        JSONBody = JSON.parse(body)
+
+        newIssues[index].comments_url=JSONBody
+
+        if (JSONBody.length) {
+          const comments = JSONBody.map(object => {
+            return {
+              body: object.body
+            }
+
+          })
+
+          // async.eachSeries(comments, function (comment, callback) {
+          //
+          //   postComment(comment, requestedOptions, issueBody.comments_url, (body) => {
+          //     callback()
+          //   })
+          //
+          // })
+
+        }
+      })
     })
-
-    requestComments(issue.comments_url, requestedOptions, (error, response, body) => {
-
-      JSONBody = JSON.parse(body)
-
-      if (JSONBody.length) {
-        console.log(JSONBody)
-        const comments = JSONBody.map(object => {
-          return {
-            body: object.body
-          }
-
-        })
-
-        console.log(comments)
-
-        // _.forEach(comments, (comment) => {
-        //
-        //   postComment(comment, requestedOptions, issueBody.comments_url)
-        //
-        // })
-      }
-    })
-
   })
 
 }
@@ -277,11 +279,12 @@ const patchIssue = function (number, requestedOptions, callback) {
 
 // post request for posting comment
 
-const postComment = function (body, requestedOptions, url) {
+const postComment = function (body, requestedOptions, url, callback) {
   requestedOptions.url = url
   requestedOptions.body = JSON.stringify(body)
 
   request.post(requestedOptions, (err, response, body) => {
+    callback(JSON.parse(body))
   })
 }
 
