@@ -123,13 +123,21 @@ const main = exports.main = function (data, requestedOptions) {
 
         logExceptOnTest(chalk.green(`\nSuccessfully converted ${issues.length} issues!`))
 
-        logExceptOnTest('\nWriting data to csv file')
-        fs.writeFile(outputFileName, csvData, (err) => {
-          if (err) throw err
+      logExceptOnTest('\nConverting issues...')
 
-          logExceptOnTest(chalk.yellow(`\nIssues was downloaded, converted and saved to ${outputFileName}`))
-        })
-      }
+      console.log(data[0].comments_url)
+
+
+      //const csvData = convertJSonToCsv(data)
+      logExceptOnTest(chalk.green(`\nSuccessfully converted ${data.length} issues!`))
+
+      logExceptOnTest('\nWriting data to csv file')
+      // fs.writeFile(outputFileName, csvData, (err) => {
+      //   if (err) throw err
+      //
+      //   logExceptOnTest(chalk.yellow(`\nIssues was downloaded, converted and saved to ${outputFileName}`))
+      // })
+    }
   })
 }
 
