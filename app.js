@@ -103,9 +103,6 @@ const makeAPIUrl = function (url) {
 
 const main = exports.main = function (data, requestedOptions) {
   console.log('main')
-  getAuthorization((username, password) => {
-    requestedOptions.auth.username = username
-    requestedOptions.auth.password = password
     requestBody(requestedOptions, (error, response, body) => {
       logExceptOnTest('Requesting API...')
 
@@ -142,7 +139,6 @@ const main = exports.main = function (data, requestedOptions) {
       })
       }
     })
-  })
 }
 
 // get page url and page number from link
@@ -258,7 +254,11 @@ const execute = exports.execute = function (argvRepository) {
     const startUrl = `${makeAPIUrl(argvRepository)}/issues?per_page=${issuesPerPage}&state=all&page=1`
 
     getRequestedOptions(argv.username, argv.password, startUrl, (requestedOptions) => {
-      main([], requestedOptions)
+      getAuthorization((username, password) => {
+        requestedOptions.auth.username = username
+        requestedOptions.auth.password = password
+        main([], requestedOptions)
+      })
     })
   } else {
     console.log('Usage: git-issues-downloader [options] URL')
