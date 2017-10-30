@@ -92,7 +92,6 @@ const getRequestedOptions = exports.getRequestedOptions = function (username, pa
 const main = exports.main = function (data, requestedOptions) {
   logExceptOnTest('Requesting API...')
   requestBody(requestedOptions, (error, response, body) => {
-
     linkObject = responseToObject(response.headers)
 
     // take body, parse it and add it to data
