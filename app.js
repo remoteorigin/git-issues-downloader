@@ -6,7 +6,6 @@ const _ = require('lodash')
 const moment = require('moment')
 const read = require('read')
 const chalk = require('chalk')
-const sinon = require('sinon')
 const argv = require('yargs')
   .usage('Usage: git-issues-downloader [options] URL \nType git-issues-downloader --help to see a list of all options.')
   .help('h')
@@ -92,7 +91,6 @@ const getRequestedOptions = exports.getRequestedOptions = function (username, pa
 const main = exports.main = function (data, requestedOptions) {
   logExceptOnTest('Requesting API...')
   requestBody(requestedOptions, (error, response, body) => {
-
     linkObject = responseToObject(response.headers)
 
     // take body, parse it and add it to data
@@ -175,14 +173,12 @@ const requestBody = exports.requestBody = function (requestedOptions, callback) 
 // take JSON data, convert them into CSV format and return them
 
 const convertJSonToCsv = exports.convertJSonToCsv = function (jsData) {
-  const csvData = jsData.map(object => {
+  return jsData.map(object => {
     const date = moment(object.created_at).format('L')
     const labels = object.labels
     const stringLabels = labels.map(label => label.name).toString()
     return `"${object.number}"; "${object.title.replace(/"/g, '\'')}"; "${object.html_url}"; "${stringLabels}"; "${object.state}"; "${date}"\n`
   }).join('')
-
-  return csvData
 }
 
 // execute main function with requested options and condition for URL input

@@ -107,7 +107,6 @@ describe('downloadGitIssues', function () {
       sinon
         .stub(request, 'get')
         .yields(null, dummyData.response2Page, JSON.stringify(dummyData.testIssues))
-
     })
 
     after(function () {
@@ -121,7 +120,5 @@ describe('downloadGitIssues', function () {
 
       assert(main.calledOnce)
     })
-
   })
-
 })

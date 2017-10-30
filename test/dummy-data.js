@@ -280,47 +280,47 @@ module.exports = {
     closed_at: null,
     body: ''
   },
-    {
-      url: 'https://api.github.com/repos/pavelbinar/ro_convert-github-issues-to-csv/issues/20',
-      repository_url: 'https://api.github.com/repos/pavelbinar/ro_convert-github-issues-to-csv',
-      labels_url: 'https://api.github.com/repos/pavelbinar/ro_convert-github-issues-to-csv/issues/20/labels{/name}',
-      comments_url: 'https://api.github.com/repos/pavelbinar/ro_convert-github-issues-to-csv/issues/20/comments',
-      events_url: 'https://api.github.com/repos/pavelbinar/ro_convert-github-issues-to-csv/issues/20/events',
-      html_url: 'https://github.com/pavelbinar/ro_convert-github-issues-to-csv/issues/20',
-      id: 227380004,
-      number: 20,
-      title: 'issue twenty',
-      user: {
-        login: 'lukasvesely98',
-        id: 27784113,
-        avatar_url: 'https://avatars1.githubusercontent.com/u/27784113?v=3',
-        gravatar_id: '',
-        url: 'https://api.github.com/users/lukasvesely98',
-        html_url: 'https://github.com/lukasvesely98',
-        followers_url: 'https://api.github.com/users/lukasvesely98/followers',
-        following_url: 'https://api.github.com/users/lukasvesely98/following{/other_user}',
-        gists_url: 'https://api.github.com/users/lukasvesely98/gists{/gist_id}',
-        starred_url: 'https://api.github.com/users/lukasvesely98/starred{/owner}{/repo}',
-        subscriptions_url: 'https://api.github.com/users/lukasvesely98/subscriptions',
-        organizations_url: 'https://api.github.com/users/lukasvesely98/orgs',
-        repos_url: 'https://api.github.com/users/lukasvesely98/repos',
-        events_url: 'https://api.github.com/users/lukasvesely98/events{/privacy}',
-        received_events_url: 'https://api.github.com/users/lukasvesely98/received_events',
-        type: 'User',
-        site_admin: false
-      },
-      labels: [],
-      state: 'open',
-      locked: false,
-      assignee: null,
-      assignees: [],
-      milestone: null,
-      comments: 0,
-      created_at: '2017-05-09T14:10:14Z',
-      updated_at: '2017-05-19T16:36:18Z',
-      closed_at: null,
-      body: ''
-    }],
+  {
+    url: 'https://api.github.com/repos/pavelbinar/ro_convert-github-issues-to-csv/issues/20',
+    repository_url: 'https://api.github.com/repos/pavelbinar/ro_convert-github-issues-to-csv',
+    labels_url: 'https://api.github.com/repos/pavelbinar/ro_convert-github-issues-to-csv/issues/20/labels{/name}',
+    comments_url: 'https://api.github.com/repos/pavelbinar/ro_convert-github-issues-to-csv/issues/20/comments',
+    events_url: 'https://api.github.com/repos/pavelbinar/ro_convert-github-issues-to-csv/issues/20/events',
+    html_url: 'https://github.com/pavelbinar/ro_convert-github-issues-to-csv/issues/20',
+    id: 227380004,
+    number: 20,
+    title: 'issue twenty',
+    user: {
+      login: 'lukasvesely98',
+      id: 27784113,
+      avatar_url: 'https://avatars1.githubusercontent.com/u/27784113?v=3',
+      gravatar_id: '',
+      url: 'https://api.github.com/users/lukasvesely98',
+      html_url: 'https://github.com/lukasvesely98',
+      followers_url: 'https://api.github.com/users/lukasvesely98/followers',
+      following_url: 'https://api.github.com/users/lukasvesely98/following{/other_user}',
+      gists_url: 'https://api.github.com/users/lukasvesely98/gists{/gist_id}',
+      starred_url: 'https://api.github.com/users/lukasvesely98/starred{/owner}{/repo}',
+      subscriptions_url: 'https://api.github.com/users/lukasvesely98/subscriptions',
+      organizations_url: 'https://api.github.com/users/lukasvesely98/orgs',
+      repos_url: 'https://api.github.com/users/lukasvesely98/repos',
+      events_url: 'https://api.github.com/users/lukasvesely98/events{/privacy}',
+      received_events_url: 'https://api.github.com/users/lukasvesely98/received_events',
+      type: 'User',
+      site_admin: false
+    },
+    labels: [],
+    state: 'open',
+    locked: false,
+    assignee: null,
+    assignees: [],
+    milestone: null,
+    comments: 0,
+    created_at: '2017-05-09T14:10:14Z',
+    updated_at: '2017-05-19T16:36:18Z',
+    closed_at: null,
+    body: ''
+  }],
 
   response1Page: {
     'statusCode': 200,
@@ -414,7 +414,6 @@ module.exports = {
     }
   },
 
-  repo : 'https://github.com/pavelbinar/ro_convert-github-issues-to-csv'
-
+  repo: 'https://github.com/pavelbinar/ro_convert-github-issues-to-csv'
 
 }
