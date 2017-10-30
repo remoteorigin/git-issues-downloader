@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node app.js ; exit 0",
     "test": "mocha test",
-    "lint": "standard"
+    "lint": "standard",
+    "lint:fix": "standard --fix"
   },
   "standard": {
     "env": [
