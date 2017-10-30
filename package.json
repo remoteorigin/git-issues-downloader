@@ -1,12 +1,13 @@
 {
   "name": "git-issues-downloader",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "app.js",
   "license": "MIT",
   "scripts": {
     "start": "node app.js ; exit 0",
     "test": "mocha test",
-    "lint": "standard"
+    "lint": "standard",
+    "lint:fix": "standard --fix"
   },
   "standard": {
     "env": [

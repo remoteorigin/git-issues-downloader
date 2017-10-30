@@ -11,15 +11,23 @@ Command line application allowing you to download all issues in the CSV format f
 - [Node.js](https://nodejs.org) (`v6.10.3 LTS`)
 - [Yarn](https://yarnpkg.com) (for development)
 
-## Usage
-
-### Install app globally
+## Installation
 
     npm install -g git-issues-downloader
 
-### Running the app
+## Ussage
 
     git-issues-downloader <repository URL>
+
+### Examples
+
+Command prompt will ask for username and password credentials for GitHub
+
+    git-issues-downloader https://github.com/remoteorigin/git-issues-downloader
+
+Example with username and password
+
+    git-issues-downloader -u <username> -p <username> https://github.com/remoteorigin/git-issues-downloader
 
 ## Development
 
@@ -39,7 +47,7 @@ All tests are are written in [Mocha](https://mochajs.org/) and stored in the `te
 
     yarn run test
 
-### Lintining
+### Linting
 
 Using [Standard](https://github.com/feross/standard) JavaScript linter & automatic code fixer.
 
