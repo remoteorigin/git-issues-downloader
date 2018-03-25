@@ -1,5 +1,7 @@
 # Git Issues Downloader
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/remoteorigin/git-issues-downloader.svg)](https://greenkeeper.io/)
+
 Command line application allowing you to download all issues in the CSV format from the public or private repository
 
 [![Build Status](https://travis-ci.org/remoteorigin/git-issues-downloader.svg?branch=master)](https://travis-ci.org/remoteorigin/git-issues-downloader)
