@@ -9,11 +9,7 @@ const chalk = require('chalk')
 const argv = require('yargs')
   .usage('Usage: git-issues-downloader [options] URL \nType git-issues-downloader --help to see a list of all options.')
   .help('h')
-
-  .version(function () {
-    return `Version: ${require('./package.json').version}`
-  })
-
+  .version()
   .alias('h', 'help')
   .alias('v', 'version')
   .alias('u', 'username')
