@@ -8,3 +8,4 @@ coverage/lcov-report/
 coverage/
 
 all_issues\.csv
+yarn-error.log
