@@ -2,10 +2,6 @@
 .idea
 node_modules
 npm-debug.log
-
-coverage/lcov-report/
-
 coverage/
-
-all_issues\.csv
+all_issues.csv
 yarn-error.log
