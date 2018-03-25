@@ -48,6 +48,11 @@
     "tickets",
     "download",
     "downloader",
-    "csv"
+    "save",
+    "csv",
+    "export",
+    "offline",
+    "local",
+    "cli"
   ]
 }
