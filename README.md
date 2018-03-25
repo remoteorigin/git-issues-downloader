@@ -1,5 +1,7 @@
 # Git Issues Downloader
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/remoteorigin/git-issues-downloader.svg)](https://greenkeeper.io/)
+
 Command line application allowing you to download all issues in the CSV format from the public or private repository
 
 [![Build Status](https://travis-ci.org/remoteorigin/git-issues-downloader.svg?branch=master)](https://travis-ci.org/remoteorigin/git-issues-downloader)
@@ -8,12 +10,18 @@ Command line application allowing you to download all issues in the CSV format f
 
 ## Requirements
 
-- [Node.js](https://nodejs.org) (`v6.10.3 LTS`)
-- [Yarn](https://yarnpkg.com) (for development)
+- [Node.js](https://nodejs.org) `v8.10.0 LTS` (tested on versions `6`, `7`, `8` and `latest`)
+- [Yarn](https://yarnpkg.com) `latest`
 
 ## Installation
 
+Via `npm`
+
     npm install -g git-issues-downloader
+
+Via `yarn`
+
+    yarn global add git-issues-downloader
 
 ## Ussage
 
@@ -45,10 +53,14 @@ Example with username and password
 
 All tests are are written in [Mocha](https://mochajs.org/) and stored in the `test` folder.
 
-    yarn run test
+    yarn test
 
 ### Linting
 
 Using [Standard](https://github.com/feross/standard) JavaScript linter & automatic code fixer.
 
-    yarn run lint
+    yarn lint
+
+Automaticaaly fix linting issues
+
+    yarn lint:fix

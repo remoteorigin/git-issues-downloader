@@ -1,8 +1,20 @@
+sudo: false
 language: node_js
+os:
+  - linux
+  - osx
 node_js:
-  - "node"
-  - "6"
+  - 8
+  - 7
+  - 6
+  - node
 cache: yarn
-script:
-  - ./node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha --reporter test/ -- -R spec
+before_install: yarn global add greenkeeper-lockfile@1
+before_script: greenkeeper-lockfile-update
+after_script: greenkeeper-lockfile-upload
+after_success:
+  - yarn cover
   - ./node_modules/.bin/codecov
+env:
+  global:
+    secure: eGptEeBpj9rsGNLF6cqvXsclE6QBCWABReVPq5ueQ0LqeE8/bXKKDoIWSkFL105Zk0grqUiMRESfIr7CWFyFlT75MhE1/QfKsGtNtJoZ4FQMb/a85VjQLBWEX9Nr34+R+FMv3a2HY49SuFhFcyndSbPZ4vc3lV48+gV/QzbKT2vNSjgH2wQrMlqgkg3Sg8sghdaVsKWsd3TxLX+PvfZD23M+bYMf1CGO0bub4kUuAZ+EfTi+nVFE5XQVZP5Ln8Ypwy8FyftxBIiYu6DkuXoGoBZxr9Ov70ANCIJeDsAhRioDSJ/33VtgSuBLjEoBgZsrdSet5q95/t4iPdzqfQlqTJvJ1uhwdWP/OdiH6Eip+elLGb4m1xaLMjCyCGY1FL5RnafCYRFsyIZWE2H1qQnOrd4gnfZx03Yrmg6ZnodyqvEp8sVvLxl5aWiiv9QMlTK1s6z23I9g1zx3kYcY0vBvdgEFCG/1vmD0dqK3A3/wr58EVeR01nj+pbqeJtnXk1bu9eTV2p9YpVsHpjM33sqwXtqoPegCGGuAsLyWoszjfK6ZhEMLS7T8Wlf8ECACd60u/5T+d7rOqhfCaCdkXu4kZczpZ9EeFBTpuHPRFDEvTNka35HXoFoY8c0TXY0zE3wSJL7xubKVPO/lFjsPREuQXxTOcSvnNxLQrL4+wjjQW9w=
