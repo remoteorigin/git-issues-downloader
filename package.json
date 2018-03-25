@@ -5,7 +5,9 @@
   "license": "MIT",
   "scripts": {
     "start": "node app.js ; exit 0",
-    "test": "mocha test",
+    "test": "mocha",
+    "cover": "istanbul cover _mocha --reporter test/",
+    "codecov": "npm run cover -- -R spec",
     "lint": "standard",
     "lint:fix": "standard --fix"
   },
