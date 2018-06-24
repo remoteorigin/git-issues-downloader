@@ -162,6 +162,9 @@ const requestBody = exports.requestBody = function (requestedOptions, callback) 
         case 'Bad credentials':
           logExceptOnTest(chalk.red('\nYour username or password is invalid, please check it'))
           break
+        case 'Must specify two-factor authentication OTP code.':
+          logExceptOnTest(chalk.red('\nYour acoount requires two-factor authentication.\nUnfortunatelly, this is currently not supported.'))
+          break
         default:
           logExceptOnTest(chalk.red('\nRepository have 0 issues. Nothing to download'))
       }
