@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-
 const fs = require('fs')
 const request = require('request')
 const _ = require('lodash')
@@ -26,7 +25,7 @@ const outputFileName = argv.filename
 
 // callback function for getting input from prompt
 
-getAuth = function (auth, silent, callback) {
+const getAuth = function (auth, silent, callback) {
   read({prompt: `${auth}: `, silent: silent}, function (er, password) {
     callback(password)
   })
@@ -88,6 +87,12 @@ const main = exports.main = function (data, requestedOptions) {
   logExceptOnTest('Requesting API...')
   requestBody(requestedOptions, (error, response, body) => {
     linkObject = responseToObject(response.headers)
+    if (error) {
+      chalk.red('There has been an error requesting data from GitHub')
+      console.error(error)
+    }
+
+    const linkObject = responseToObject(response.headers)
 
     // take body, parse it and add it to data
 
@@ -156,6 +161,9 @@ const requestBody = exports.requestBody = function (requestedOptions, callback) 
           break
         case 'Bad credentials':
           logExceptOnTest(chalk.red('\nYour username or password is invalid, please check it'))
+          break
+        case 'Must specify two-factor authentication OTP code.':
+          logExceptOnTest(chalk.red('\nYour acoount requires two-factor authentication.\nUnfortunatelly, this is currently not supported.'))
           break
         default:
           logExceptOnTest(chalk.red('\nRepository have 0 issues. Nothing to download'))
