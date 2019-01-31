@@ -9,18 +9,11 @@ Command line application allowing you to download all issues in the CSV format f
 
 ## Requirements
 
-- [Node.js](https://nodejs.org) `v8.10.0 LTS` (tested on versions `6`, `7`, `8` and `latest`)
-- [Yarn](https://yarnpkg.com) `1.10.1`
+- [Node.js](https://nodejs.org) `v10.15.0 LTS` (tested on versions `6`, `7`, `8` and `latest`)
 
 ## Installation
 
-Via `npm`
-
     npm install -g git-issues-downloader
-
-Via `yarn`
-
-    yarn global add git-issues-downloader
 
 ## Usage
 
@@ -42,24 +35,24 @@ Example with username and password
 
     git clone git@github.com:remoteorigin/git-issues-downloader.git
     cd git-issues-downloader
-    yarn install
+    npm install
 
 ### Run Project
 
-    yarn start
+    npm start
 
 ### Tests
 
 All tests are are written in [Mocha](https://mochajs.org/) and stored in the `test` folder.
 
-    yarn test
+    npm run test
 
 ### Linting
 
 Using [Standard](https://github.com/feross/standard) JavaScript linter & automatic code fixer.
 
-    yarn lint
+    npm run lint
 
 Automatically fix linting issues
 
-    yarn lint:fix
+    npm run lint:fix

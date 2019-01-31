@@ -235,7 +235,7 @@ module.exports = {
     'body': ''
   }],
 
-  bodyForBadUrl: {'message': 'Not Found', 'documentation_url': 'https://developer.github.com/v3'},
+  bodyForBadUrl: { 'message': 'Not Found', 'documentation_url': 'https://developer.github.com/v3' },
 
   bodyForBadCredentials: '{"message":"Not Found","documentation_url":"https://developer.github.com/v3"}',
 
@@ -364,7 +364,7 @@ module.exports = {
         'href': 'https://api.github.com/repos/pavelbinar/ro_convert-github-issues-to-csv/issues?per_page=100&state=all&page=1'
       },
       'method': 'GET',
-      'headers': {'User-Agent': 'request', 'authorization': 'Basic bHVrYXN2ZXNlbHk5ODpSMGpuZnZwYXB2bmo0bA=='}
+      'headers': { 'User-Agent': 'request', 'authorization': 'Basic bHVrYXN2ZXNlbHk5ODpSMGpuZnZwYXB2bmo0bA==' }
     }
   },
 
@@ -410,7 +410,7 @@ module.exports = {
         'href': 'https://api.github.com/repos/pavelbinar/ro_convert-github-issues-to-csv/issues?per_page=12&state=all&page=1'
       },
       'method': 'GET',
-      'headers': {'User-Agent': 'request', 'authorization': 'Basic bHVrYXN2ZXNlbHk5ODpSMGpuZnZwYXB2bmo0bA=='}
+      'headers': { 'User-Agent': 'request', 'authorization': 'Basic bHVrYXN2ZXNlbHk5ODpSMGpuZnZwYXB2bmo0bA==' }
     }
   },
 

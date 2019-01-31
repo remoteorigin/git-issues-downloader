@@ -10,7 +10,7 @@ const dummyData = require('./dummy-data')
 
 const getRequestedOptions = app.getRequestedOptions
 const convertJsonToCsv = app.convertJSonToCsv
-const main = app.main
+// const main = app.main
 
 describe('downloadGitIssues', function () {
   process.env.NODE_ENV = 'test'

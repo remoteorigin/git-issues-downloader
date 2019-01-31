@@ -26,13 +26,12 @@ const outputFileName = argv.filename
 // callback function for getting input from prompt
 
 const getAuth = function (auth, silent, callback) {
-  read({prompt: `${auth}: `, silent: silent}, function (er, password) {
+  read({ prompt: `${auth}: `, silent: silent }, function (er, password) {
     callback(password)
   })
 }
 
 // callback function for getting requested options
-
 const getRequestedOptions = exports.getRequestedOptions = function (username, password, url, callback) {
   const requestOptions = {
     headers: {
@@ -86,13 +85,12 @@ const getRequestedOptions = exports.getRequestedOptions = function (username, pa
 const main = exports.main = function (data, requestedOptions) {
   logExceptOnTest('Requesting API...')
   requestBody(requestedOptions, (error, response, body) => {
-    linkObject = responseToObject(response.headers)
+    const linkObject = responseToObject(response.headers)
+
     if (error) {
       chalk.red('There has been an error requesting data from GitHub')
       console.error(error)
     }
-
-    const linkObject = responseToObject(response.headers)
 
     // take body, parse it and add it to data
 
@@ -211,4 +209,4 @@ function logExceptOnTest (string) {
 
 const argvRepository = argv._[argv._.length - 1]
 
-this.execute(argvRepository)
+execute(argvRepository)
