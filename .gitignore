@@ -5,3 +5,4 @@ npm-debug.log
 coverage/
 all_issues.csv
 yarn-error.log
+.env
