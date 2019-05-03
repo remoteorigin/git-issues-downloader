@@ -12,13 +12,16 @@ const argv = require('yargs')
   .alias('h', 'help')
   .alias('v', 'version')
   .alias('u', 'username')
+  .alias('a', 'additionalParams')
   .alias('p', 'password')
   .alias('f', 'filename')
   .describe('help', 'Show help')
+  .describe('additionalParams', 'Pass additional params to filter the issues returned. See https://developer.github.com/v3/issues/#parameters-1 for more details')
   .describe('username', 'Your GitHub username')
   .describe('password', 'Your GitHub password')
   .describe('filename', 'Name of the output file')
   .default('filename', 'all_issues.csv')
+  .default('additionalParams', '')
   .argv
 
 const outputFileName = argv.filename
@@ -97,7 +100,7 @@ const main = exports.main = function (data, requestedOptions) {
     data = _.concat(data, body)
 
     if (linkObject.nextPage) {
-      logExceptOnTest(chalk.green(`Successfully requested ${linkObject.nextPage.number - 1}. page of ${linkObject.lastPage.number}`))
+      logExceptOnTest(chalk.green(`Successfully requested page ${linkObject.nextPage.number - 1} of ${linkObject.lastPage.number}`))
       requestedOptions.url = linkObject.nextPage.url
       main(data, requestedOptions)
     } else {
@@ -120,6 +123,7 @@ const main = exports.main = function (data, requestedOptions) {
 // get page url and page number from link
 
 const getUrlAndNumber = exports.getUrlAndNumber = function (link) {
+  if (!link) return false
   return {
     url: link.slice(link.indexOf('<') + 1, link.indexOf('>')),
     number: link.slice(link.indexOf('page', link.indexOf('state')) + 5, link.indexOf('>'))
@@ -135,10 +139,10 @@ const responseToObject = exports.responseToObject = function (response) {
     const links = rawLink.split(',')
 
     return {
-      nextPage: (links[0]) ? getUrlAndNumber(links[0]) : false,
-      lastPage: (links[1]) ? getUrlAndNumber(links[1]) : false,
-      firstPage: (links[2]) ? getUrlAndNumber(links[2]) : false,
-      prevPage: (links[3]) ? getUrlAndNumber(links[3]) : false
+      nextPage: getUrlAndNumber(links.filter((link) => link.indexOf(`rel="next"`) > -1)[0]),
+      lastPage: getUrlAndNumber(links.filter((link) => link.indexOf(`rel="last"`) > -1)[0]),
+      firstPage: getUrlAndNumber(links.filter((link) => link.indexOf(`rel="first"`) > -1)[0]),
+      prevPage: getUrlAndNumber(links.filter((link) => link.indexOf(`rel="prev"`) > -1)[0])
     }
   }
   return false
@@ -191,7 +195,7 @@ const execute = exports.execute = function (argvRepository) {
     const repoUserName = argvRepository.slice(19, argvRepository.indexOf('/', 19))
     const repoUrl = (argvRepository.slice(20 + repoUserName.length, argvRepository.lastIndexOf('/'))) ? argvRepository.slice(20 + repoUserName.length, argvRepository.lastIndexOf('/')) : argvRepository.slice(20 + repoUserName.length)
 
-    const startUrl = `https://api.github.com/repos/${repoUserName}/${repoUrl}/issues?per_page=${issuesPerPage}&state=all&page=1`
+    const startUrl = `https://api.github.com/repos/${repoUserName}/${repoUrl}/issues?per_page=${issuesPerPage}&state=all&page=1${argv.additionalParams}`
 
     getRequestedOptions(argv.username, argv.password, startUrl, (requestedOptions) => {
       main([], requestedOptions)
