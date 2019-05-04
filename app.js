@@ -121,7 +121,7 @@ const main = exports.main = function (data, requestedOptions) {
 
 const getUrlAndNumber = exports.getUrlAndNumber = function (link) {
   var pageRegex = link.match(/&page=([\d]+)/)
-  var relRegex = link.match(/rel=\"([^\"]+)\"/)
+  var relRegex = link.match(/rel="([^"]+)"/)
   return {
     url: link.slice(link.indexOf('<') + 1, link.indexOf('>')),
     number: pageRegex && pageRegex[1],
@@ -138,20 +138,20 @@ const responseToObject = exports.responseToObject = function (response) {
     const links = rawLink.split(',')
 
     return links.reduce((acc, link) => {
-      var result = getUrlAndNumber(link);
+      var result = getUrlAndNumber(link)
 
       if (result.rel === 'next') {
-        acc.nextPage = result;
+        acc.nextPage = result
       } else if (result.rel === 'last') {
-        acc.lastPage = result;
+        acc.lastPage = result
       } else if (result.rel === 'first') {
-        acc.firstPage = result;
+        acc.firstPage = result
       } else if (result.rel === 'prev') {
-        acc.prevPage = result;
+        acc.prevPage = result
       }
 
-      return acc;
-    }, {});
+      return acc
+    }, {})
   }
   return false
 }
@@ -187,18 +187,18 @@ const requestBody = exports.requestBody = function (requestedOptions, callback) 
 // take JSON data, convert them into CSV format and return them
 
 const convertJSonToCsv = exports.convertJSonToCsv = function (jsData) {
-  const csv = "Issue Number; Title; Github URL; Labels; State; Created At; Updated At; Reporter; Assignee; Body\n";
+  const csv = 'Issue Number; Title; Github URL; Labels; State; Created At; Updated At; Reporter; Assignee; Body\n'
 
   return csv + jsData.map(object => {
-    const createdAt = moment(object.created_at).format('L');
-    const updatedAt = moment(object.updated_at).format('L');
-    const reporter = (object.user && object.user.login) || '';
-    const assignee = (object.assignee && object.assignee.login) || '';
+    const createdAt = moment(object.created_at).format('L')
+    const updatedAt = moment(object.updated_at).format('L')
+    const reporter = (object.user && object.user.login) || ''
+    const assignee = (object.assignee && object.assignee.login) || ''
 
     const labels = object.labels
     const stringLabels = labels.map(label => label.name).toString()
-    return `${object.number}; "${object.title.replace(/\"/g, '\'')}"; ${object.html_url}; "${stringLabels}"; ${object.state}; ${createdAt}; ${updatedAt}; ${reporter}; ${assignee}; "${object.body.replace(/\"/g, '\'')}"\n`
-  }).join('');
+    return `${object.number}; "${object.title.replace(/"/g, '\'')}"; ${object.html_url}; "${stringLabels}"; ${object.state}; ${createdAt}; ${updatedAt}; ${reporter}; ${assignee}; "${object.body.replace(/"/g, '\'')}"\n`
+  }).join('')
 }
 
 // execute main function with requested options and condition for URL input
