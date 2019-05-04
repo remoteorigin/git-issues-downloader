@@ -17,13 +17,10 @@
   },
   "dependencies": {
     "chalk": "^2.3.2",
-    "codecov": "^3.0.0",
-    "istanbul": "^0.4.5",
     "lodash": "^4.17.4",
     "moment": "^2.18.1",
     "read": "^1.0.7",
     "request": "^2.81.0",
-    "sinon": "^7.3.2",
     "yargs": "^13.1.0"
   },
   "bin": {
@@ -31,12 +28,15 @@
   },
   "devDependencies": {
     "chai": "^4.1.2",
+    "codecov": "^3.0.0",
+    "istanbul": "^0.4.5",
     "mocha": "^6.1.4",
+    "sinon": "^7.3.2",
     "standard": "^12.0.0"
   },
   "description": "Command line application allowing you to download all issues in the CSV format from the public or private repository",
   "repository": "git@github.com:remoteorigin/git-issues-downloader.git",
-  "author": "Pavel Binar <pavel@remoteorigin.co> (http://remoteorigin.co)",
+  "author": "Pavel Binar <pavel@remoteorigin.co> (https://remoteorigin.com/)",
   "bugs:": {
     "url": "https://github.com/remoteorigin/git-issues-downloader/issues"
   },
