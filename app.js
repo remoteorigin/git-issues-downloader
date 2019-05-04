@@ -124,8 +124,8 @@ const getUrlAndNumber = exports.getUrlAndNumber = function (link) {
   var relRegex = link.match(/rel=\"([^\"]+)\"/)
   return {
     url: link.slice(link.indexOf('<') + 1, link.indexOf('>')),
-    number: pageRegex[1],
-    rel: relRegex[1]
+    number: pageRegex && pageRegex[1],
+    rel: relRegex && relRegex[1]
   }
 }
 
