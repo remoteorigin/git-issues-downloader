@@ -187,7 +187,8 @@ const requestBody = exports.requestBody = function (requestedOptions, callback) 
 // take JSON data, convert them into CSV format and return them
 
 const convertJSonToCsv = exports.convertJSonToCsv = function (jsData) {
-  const csv = 'Issue Number; Title; Github URL; Labels; State; Created At; Updated At; Reporter; Assignee; Body\n'
+  // const csv = 'Issue Number; Title; Github URL; Labels; State; Created At; Updated At; Reporter; Assignee; Body\n'
+  const csv = 'Issue Number; Title; Github URL; Labels; State; Created At; Updated At; Reporter; Assignee\n'
 
   return csv + jsData.map(object => {
     const createdAt = moment(object.created_at).format('L')
@@ -198,7 +199,8 @@ const convertJSonToCsv = exports.convertJSonToCsv = function (jsData) {
     const labels = object.labels
     const stringLabels = labels.map(label => label.name).toString()
 
-    return `${object.number}; "${_.replace(object.title, /"/g, '\'')}"; ${object.html_url}; "${stringLabels}"; ${object.state}; ${createdAt}; ${updatedAt}; ${reporter}; ${assignee}; "${_.replace(object.body, /"/g, '\'')}"\n`
+    // return `${object.number}; "${_.replace(object.title, /"/g, '\'')}"; ${object.html_url}; "${stringLabels}"; ${object.state}; ${createdAt}; ${updatedAt}; ${reporter}; ${assignee}; "${_.replace(object.body, /"/g, '\'')}"\n`
+    return `${object.number}; "${_.replace(object.title, /"/g, '\'')}"; ${object.html_url}; "${stringLabels}"; ${object.state}; ${createdAt}; ${updatedAt}; ${reporter}; ${assignee}\n`
   }).join('')
 }
 
