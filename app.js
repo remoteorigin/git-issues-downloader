@@ -197,7 +197,8 @@ const convertJSonToCsv = exports.convertJSonToCsv = function (jsData) {
 
     const labels = object.labels
     const stringLabels = labels.map(label => label.name).toString()
-    return `${object.number}; "${object.title.replace(/"/g, '\'')}"; ${object.html_url}; "${stringLabels}"; ${object.state}; ${createdAt}; ${updatedAt}; ${reporter}; ${assignee}; "${object.body.replace(/"/g, '\'')}"\n`
+
+    return `${object.number}; "${_.replace(object.title, /"/g, '\'')}"; ${object.html_url}; "${stringLabels}"; ${object.state}; ${createdAt}; ${updatedAt}; ${reporter}; ${assignee}; "${_.replace(object.body, /"/g, '\'')}"\n`
   }).join('')
 }
 
