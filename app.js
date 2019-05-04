@@ -83,7 +83,7 @@ const getRequestedOptions = exports.getRequestedOptions = function (username, pa
 // main function for running program
 
 const main = exports.main = function (data, requestedOptions) {
-  logExceptOnTest('Requesting API...')
+  logExceptOnTest('Requesting API...' + requestedOptions.url)
   requestBody(requestedOptions, (error, response, body) => {
     const linkObject = responseToObject(response.headers)
 
@@ -120,9 +120,12 @@ const main = exports.main = function (data, requestedOptions) {
 // get page url and page number from link
 
 const getUrlAndNumber = exports.getUrlAndNumber = function (link) {
+  var pageRegex = link.match(/&page=([\d]+)/)
+  var relRegex = link.match(/rel=\"([^\"]+)\"/)
   return {
     url: link.slice(link.indexOf('<') + 1, link.indexOf('>')),
-    number: link.slice(link.indexOf('page', link.indexOf('state')) + 5, link.indexOf('>'))
+    number: pageRegex && pageRegex[1],
+    rel: relRegex && relRegex[1]
   }
 }
 
@@ -134,12 +137,21 @@ const responseToObject = exports.responseToObject = function (response) {
   if (rawLink && rawLink.includes('next')) {
     const links = rawLink.split(',')
 
-    return {
-      nextPage: (links[0]) ? getUrlAndNumber(links[0]) : false,
-      lastPage: (links[1]) ? getUrlAndNumber(links[1]) : false,
-      firstPage: (links[2]) ? getUrlAndNumber(links[2]) : false,
-      prevPage: (links[3]) ? getUrlAndNumber(links[3]) : false
-    }
+    return links.reduce((acc, link) => {
+      var result = getUrlAndNumber(link);
+
+      if (result.rel === 'next') {
+        acc.nextPage = result;
+      } else if (result.rel === 'last') {
+        acc.lastPage = result;
+      } else if (result.rel === 'first') {
+        acc.firstPage = result;
+      } else if (result.rel === 'prev') {
+        acc.prevPage = result;
+      }
+
+      return acc;
+    }, {});
   }
   return false
 }
@@ -175,12 +187,18 @@ const requestBody = exports.requestBody = function (requestedOptions, callback) 
 // take JSON data, convert them into CSV format and return them
 
 const convertJSonToCsv = exports.convertJSonToCsv = function (jsData) {
-  return jsData.map(object => {
-    const date = moment(object.created_at).format('L')
+  const csv = "Issue Number; Title; Github URL; Labels; State; Created At; Updated At; Reporter; Assignee; Body\n";
+
+  return csv + jsData.map(object => {
+    const createdAt = moment(object.created_at).format('L');
+    const updatedAt = moment(object.updated_at).format('L');
+    const reporter = (object.user && object.user.login) || '';
+    const assignee = (object.assignee && object.assignee.login) || '';
+
     const labels = object.labels
     const stringLabels = labels.map(label => label.name).toString()
-    return `"${object.number}"; "${object.title.replace(/"/g, '\'')}"; "${object.html_url}"; "${stringLabels}"; "${object.state}"; "${date}"\n`
-  }).join('')
+    return `${object.number}; "${object.title.replace(/\"/g, '\'')}"; ${object.html_url}; "${stringLabels}"; ${object.state}; ${createdAt}; ${updatedAt}; ${reporter}; ${assignee}; "${object.body.replace(/\"/g, '\'')}"\n`
+  }).join('');
 }
 
 // execute main function with requested options and condition for URL input
@@ -191,7 +209,7 @@ const execute = exports.execute = function (argvRepository) {
     const repoUserName = argvRepository.slice(19, argvRepository.indexOf('/', 19))
     const repoUrl = (argvRepository.slice(20 + repoUserName.length, argvRepository.lastIndexOf('/'))) ? argvRepository.slice(20 + repoUserName.length, argvRepository.lastIndexOf('/')) : argvRepository.slice(20 + repoUserName.length)
 
-    const startUrl = `https://api.github.com/repos/${repoUserName}/${repoUrl}/issues?per_page=${issuesPerPage}&state=all&page=1`
+    const startUrl = `https://api.github.com/repos/${repoUserName}/${repoUrl}/issues?state=all&per_page=${issuesPerPage}&page=1`
 
     getRequestedOptions(argv.username, argv.password, startUrl, (requestedOptions) => {
       main([], requestedOptions)
