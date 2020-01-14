@@ -175,6 +175,9 @@ const requestBody = exports.requestBody = function (requestedOptions, callback) 
         case 'Must specify two-factor authentication OTP code.':
           logExceptOnTest(chalk.red('\nYour acoount requires two-factor authentication.\nUnfortunatelly, this is currently not supported.'))
           break
+        case (JSObject.message.match(/API rate limit exceeded/) || {}).input:
+          logExceptOnTest(chalk.red('\nAPI rate limit exceeded'))
+          break
         default:
           logExceptOnTest(chalk.red('\nRepository have 0 issues. Nothing to download'))
       }
