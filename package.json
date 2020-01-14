@@ -34,7 +34,7 @@
     "sinon": "^7.3.2",
     "standard": "^12.0.1"
   },
-  "description": "Command line application allowing you to download all issues in the CSV format from the public or private repository",
+  "description": "Command line application allowing you to download all issues in the CSV format from the public or private GitHub repository",
   "repository": "git@github.com:remoteorigin/git-issues-downloader.git",
   "author": "Pavel Binar <pavel@remoteorigin.co> (https://remoteorigin.com/)",
   "bugs:": {
