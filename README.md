@@ -8,7 +8,7 @@ Command line application allowing you to download all issues in the CSV format f
 
 ## Requirements
 
-- [Node.js](https://nodejs.org) `v10.15.0 LTS` (tested on versions `6`, `7`, `8` and `latest`)
+- [Node.js](https://nodejs.org) `v12.13.0` (tested on versions `6`, `7`, `8` and `latest`)
 
 ## Installation
 
@@ -24,9 +24,13 @@ Command prompt will ask for username and password credentials for GitHub
 
     git-issues-downloader https://github.com/remoteorigin/git-issues-downloader
 
+If you do not need to authentication, simply hit enter for username and password.
+
 Example with username and password
 
     git-issues-downloader -u <username> -p <username> https://github.com/remoteorigin/git-issues-downloader
+
+The two-factor authentication is currently not supported.
 
 ## Development
 
