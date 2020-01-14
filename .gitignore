@@ -3,5 +3,7 @@
 node_modules
 npm-debug.log
 coverage/
+\.nyc_output/
 all_issues.csv
 yarn-error.log
+.env

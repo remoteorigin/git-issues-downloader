@@ -53,10 +53,8 @@ module.exports = {
 
   startUrl: 'https://api.github.com/repos/pavelbinar/ro_convert-github-issues-to-csv/issues?per_page=100&state=all&page=1',
 
-  issuesResult21: `"21"; "issue message"; "https://github.com/pavelbinar/ro_convert-github-issues-to-csv/issues/21"; ""; "open"; "05/23/2017"
-`,
-  issuesResult20: `"20"; "issue twenty"; "https://github.com/pavelbinar/ro_convert-github-issues-to-csv/issues/20"; "bug"; "open"; "05/09/2017"
-`,
+  issuesResult21: `Issue Number; Title; Github URL; Labels; State; Created At; Updated At; Reporter; Assignee; Body\n21; "issue message"; https://github.com/pavelbinar/ro_convert-github-issues-to-csv/issues/21; ""; open; 05/23/2017; 05/23/2017; lukasvesely98; ; ""\n`,
+  issuesResult20: `Issue Number; Title; Github URL; Labels; State; Created At; Updated At; Reporter; Assignee; Body\n20; "issue twenty"; https://github.com/pavelbinar/ro_convert-github-issues-to-csv/issues/20; "bug"; open; 05/09/2017; 05/19/2017; lukasvesely98; ; ""\n`,
 
   JSONdata21: [{
     url: 'https://api.github.com/repos/pavelbinar/ro_convert-github-issues-to-csv/issues/21',
